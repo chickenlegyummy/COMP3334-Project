@@ -1,4 +1,4 @@
-# TeamName Project
+# COMP3334 Project
 
 This repository contains a client-server application for secure file management and sharing. The project is organized into separate modules for the client, server, and shared components, providing a clear and maintainable structure.
 
@@ -18,7 +18,7 @@ This repository contains a client-server application for secure file management 
 
 ## Project Structure
 ```
-TeamName/
+root/
 ├── code/
 │ ├── client/ # Client-side functionality
 │ │ ├── init.py
