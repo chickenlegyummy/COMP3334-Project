@@ -17,7 +17,7 @@ This repository contains a client-server application for secure file management 
 ---
 
 ## Project Structure
-
+```
 TeamName/
 ├── code/
 │ ├── client/ # Client-side functionality
@@ -44,7 +44,7 @@ TeamName/
 │ └── schema.sql # Database schema
 ├── report.pdf # Project documentation
 └── video.mp4 # Project demo video
-
+```
 ---
 
 ## Setup Instructions
