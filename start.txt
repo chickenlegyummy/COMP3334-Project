@@ -1,0 +1,3 @@
+python -m src.server.server
+python -m src.client.client
+taskkill /F /IM python.exe
