@@ -25,7 +25,7 @@ class FileController:
             print(f"Key stored successfully: {key}")
         except Exception as e:
             print(f"Failed to store key for {filename}: {e}")
-
+    
     def get_key(self, filename):
         key_filepath = os.path.join(self.storage_path, f"{filename}.key")
         if os.path.exists(key_filepath):
@@ -38,3 +38,16 @@ class FileController:
     
     def list_files(self):
         return [f for f in os.listdir(self.storage_path) if os.path.isfile(os.path.join(self.storage_path, f)) and not f.endswith(".key")]
+    
+    def delete_file(self, filename):
+        filepath = os.path.join(self.storage_path, filename)
+        key_filepath = os.path.join(self.storage_path, f"{filename}.key")
+        file_exists = os.path.exists(filepath)
+        key_exists = os.path.exists(key_filepath)
+        
+        if file_exists:
+            os.remove(filepath)
+            if key_exists:
+                os.remove(key_filepath)
+            return True
+        return False

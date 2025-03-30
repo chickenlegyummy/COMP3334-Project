@@ -64,6 +64,8 @@ class Server:
                     self.handle_download(client, args, addr)
                 elif command == "LIST":
                     self.handle_list(client, addr)
+                elif command == "DELETE":
+                    self.handle_delete(client, args, addr)
                 else:
                     print(f"Unknown command from {addr}: {command}")
             except Exception as e:
@@ -75,8 +77,8 @@ class Server:
     def handle_upload(self, client, args, addr):
         filename, size, key = args[0], int(args[1]), args[2]
         data = client.recv(size)
-        self.file_controller.store_file(filename, data)  # Store encrypted data
-        self.file_controller.store_key(filename, key)    # Store the key
+        self.file_controller.store_file(filename, data)
+        self.file_controller.store_key(filename, key)
         self.logger.log_action(addr[0], f"uploaded {filename}")
         client.send("UPLOAD_SUCCESS".encode())
     
@@ -107,6 +109,16 @@ class Server:
         else:
             client.send("FILES:No files in storage".encode())
         self.logger.log_action(addr[0], "listed files")
+    
+    def handle_delete(self, client, args, addr):
+        filename = args[0]
+        if self.file_controller.delete_file(filename):
+            self.logger.log_action(addr[0], f"deleted {filename}")
+            client.send("DELETE_SUCCESS".encode())
+            print(f"Deleted {filename} from storage")
+        else:
+            client.send("ERROR:File not found".encode())
+            print(f"Failed to delete {filename}: File not found")
 
 if __name__ == "__main__":
     import os

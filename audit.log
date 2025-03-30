@@ -30,3 +30,7 @@
 2025-03-28 13:13:56,647 - User: test, Action: login
 2025-03-28 13:13:59,617 - User: 127.0.0.1, Action: listed files
 2025-03-28 13:14:11,621 - User: 127.0.0.1, Action: downloaded Tutorial 8 Video 2 SV.pdf
+2025-03-30 16:26:48,705 - User: test, Action: login
+2025-03-30 16:26:57,569 - User: 127.0.0.1, Action: deleted test.txt
+2025-03-30 16:27:35,633 - User: 127.0.0.1, Action: uploaded test.txt
+2025-03-30 16:27:44,496 - User: 127.0.0.1, Action: listed files
