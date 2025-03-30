@@ -32,7 +32,7 @@ class Client:
     def main_loop(self):
         while True:
             try:
-                command = input("Enter command (upload/download/list/delete/exit): ").lower().strip()
+                command = input("Enter command (upload/download/list/delete/edit/exit): ").lower().strip()
                 if not command:
                     print("Please enter a valid command.")
                     continue
@@ -44,7 +44,11 @@ class Client:
                     if not filepath:
                         print("File path cannot be empty.")
                         continue
-                    self.file_manager.upload_file(filepath, self.crypto)
+                    visibility = input("Set visibility (private/public/unlisted): ").lower().strip()
+                    if visibility not in ["private", "public", "unlisted"]:
+                        print("Invalid visibility. Use: private, public, or unlisted.")
+                        continue
+                    self.file_manager.upload_file(filepath, self.crypto, visibility)
                 elif command == "download":
                     filename = input("Enter filename to download: ").strip()
                     if not filename:
@@ -53,12 +57,12 @@ class Client:
                     self.file_manager.download_file(filename, self.crypto)
                 elif command == "list":
                     self.socket.send("LIST".encode())
-                    response = self.socket.recv(1024).decode()
+                    response = self.socket.recv(2048).decode()
                     if response.startswith("FILES:"):
                         files = response.split(":", 1)[1]
                         print("Files in storage:\n" + files)
                     else:
-                        print("Error listing files: " + response)
+                        print("Error listing files: " + response.split(":", 1)[1] if ":" in response else response)
                 elif command == "delete":
                     filename = input("Enter filename to delete: ").strip()
                     if not filename:
@@ -70,8 +74,46 @@ class Client:
                         print(f"File '{filename}' deleted successfully!")
                     else:
                         print(f"Error deleting file: {response.split(':', 1)[1] if ':' in response else response}")
+                elif command == "edit":
+                    filename = input("Enter filename to edit: ").strip()
+                    if not filename:
+                        print("Filename cannot be empty.")
+                        continue
+                    visibility = input("New visibility (private/public/unlisted, or leave blank): ").lower().strip()
+                    if visibility and visibility not in ["private", "public", "unlisted"]:
+                        print("Invalid visibility. Use: private, public, unlisted, or leave blank.")
+                        continue
+                    
+                    cmd = f"EDIT:{filename}"
+                    if visibility in ["private", "public"]:
+                        cmd += f":{visibility}::"
+                    else:
+                        # Fetch and display current allowed users
+                        self.socket.send(f"GET_ALLOWED:{filename}".encode())
+                        response = self.socket.recv(1024).decode()
+                        if response.startswith("ALLOWED:"):
+                            allowed_users = response.split(":", 1)[1]
+                            print(f"Users allowed: {allowed_users if allowed_users != 'None' else 'None'}")
+                        else:
+                            print(f"Error fetching allowed users: {response.split(':', 1)[1] if ':' in response else response}")
+                            continue
+                        add_users_input = input("Users to add (comma-separated, or leave blank): ").strip()
+                        remove_users_input = input("Users to remove (comma-separated, or leave blank): ").strip()
+                        # Clean up add_users and remove_users by removing extra spaces
+                        add_users = ",".join([u.strip() for u in add_users_input.split(",") if u.strip()]) if add_users_input else ""
+                        remove_users = ",".join([u.strip() for u in remove_users_input.split(",") if u.strip()]) if remove_users_input else ""
+                        cmd += f":{visibility}" if visibility else ":"
+                        cmd += f":{add_users}" if add_users else ":"
+                        cmd += f":{remove_users}" if remove_users else ":"
+                    
+                    self.socket.send(cmd.encode())
+                    response = self.socket.recv(1024).decode()
+                    if response == "EDIT_SUCCESS":
+                        print(f"Privileges for '{filename}' updated successfully!")
+                    else:
+                        print(f"Error editing file: {response.split(':', 1)[1] if ':' in response else response}")
                 else:
-                    print(f"Invalid command '{command}'. Use: upload, download, list, delete, or exit.")
+                    print(f"Invalid command '{command}'. Use: upload, download, list, delete, edit, or exit.")
             
             except socket.error as e:
                 print(f"Network error: {e}. Check your connection or server status.")

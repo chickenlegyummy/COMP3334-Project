@@ -4,7 +4,7 @@ class FileManager:
     def __init__(self, socket):
         self.socket = socket
     
-    def upload_file(self, filepath, crypto):
+    def upload_file(self, filepath, crypto, visibility="private"):
         if not os.path.exists(filepath):
             print("File does not exist!")
             return
@@ -15,13 +15,13 @@ class FileManager:
         
         encrypted_data, key = crypto.encrypt(data)
         size = len(encrypted_data)
-        self.socket.send(f"UPLOAD:{filename}:{size}:{key.decode()}".encode())
+        self.socket.send(f"UPLOAD:{filename}:{size}:{key.decode()}:{visibility}".encode())
         self.socket.send(encrypted_data)
         response = self.socket.recv(1024).decode()
         if response == "UPLOAD_SUCCESS":
             print("File uploaded successfully!")
         else:
-            print("Upload failed!")
+            print(f"Upload failed: {response.split(':', 1)[1] if ':' in response else response}")
     
     def download_file(self, filename, crypto):
         self.socket.send(f"DOWNLOAD:{filename}".encode())
@@ -32,7 +32,6 @@ class FileManager:
             return
         
         size = int(response.split(":", 1)[1])
-        print(f"Expected file size: {size}")  # Debug
         file_data = b""
         while len(file_data) < size:
             chunk = self.socket.recv(size - len(file_data))
@@ -40,10 +39,8 @@ class FileManager:
                 print("Connection closed before receiving full file!")
                 return
             file_data += chunk
-        print(f"Received file data size: {len(file_data)}")  # Debug
         
         key_data = self.socket.recv(1024).decode()
-        print(f"Received key data: {key_data}")  # Debug
         if not key_data.startswith("KEY:"):
             print(f"Invalid key response from server: {key_data}")
             return

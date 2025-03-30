@@ -34,3 +34,128 @@
 2025-03-30 16:26:57,569 - User: 127.0.0.1, Action: deleted test.txt
 2025-03-30 16:27:35,633 - User: 127.0.0.1, Action: uploaded test.txt
 2025-03-30 16:27:44,496 - User: 127.0.0.1, Action: listed files
+2025-03-30 17:14:39,678 - User: guest, Action: login
+2025-03-30 17:15:19,389 - User: admin, Action: login
+2025-03-30 17:15:48,343 - User: 127.0.0.1, Action: uploaded test.txt (public)
+2025-03-30 17:16:11,124 - User: 127.0.0.1, Action: uploaded start.txt (private)
+2025-03-30 17:16:36,745 - User: 127.0.0.1, Action: uploaded setup.txt (unlisted)
+2025-03-30 17:17:54,853 - User: 127.0.0.1, Action: edited setup.txt privileges
+2025-03-30 17:18:10,480 - User: test, Action: login
+2025-03-30 17:18:12,507 - User: 127.0.0.1, Action: listed files
+2025-03-30 17:18:26,415 - User: admin, Action: login
+2025-03-30 17:18:46,927 - User: 127.0.0.1, Action: edited setup.txt privileges
+2025-03-30 17:18:58,720 - User: test, Action: login
+2025-03-30 17:19:01,638 - User: 127.0.0.1, Action: listed files
+2025-03-30 17:19:29,758 - User: admin, Action: login
+2025-03-30 17:19:31,886 - User: 127.0.0.1, Action: listed files
+2025-03-30 17:19:45,472 - User: 127.0.0.1, Action: edited setup.txt privileges
+2025-03-30 17:19:57,638 - User: test, Action: login
+2025-03-30 17:19:59,012 - User: 127.0.0.1, Action: listed files
+2025-03-30 19:23:48,099 - User: test, Action: login
+2025-03-30 19:23:50,402 - User: 127.0.0.1, Action: listed files
+2025-03-30 19:24:22,818 - User: admin, Action: login
+2025-03-30 19:24:27,075 - User: 127.0.0.1, Action: listed files
+2025-03-30 19:24:52,810 - User: 127.0.0.1, Action: edited setup.txt privileges
+2025-03-30 19:25:06,955 - User: test, Action: login
+2025-03-30 19:25:08,339 - User: 127.0.0.1, Action: listed files
+2025-03-30 19:40:43,501 - User: test, Action: login
+2025-03-30 19:40:45,547 - User: 127.0.0.1, Action: listed files
+2025-03-30 19:41:04,604 - User: 127.0.0.1, Action: downloaded test.txt
+2025-03-30 19:41:51,736 - User: 127.0.0.1, Action: uploaded audit.log (unlisted)
+2025-03-30 19:43:33,247 - User: test, Action: login
+2025-03-30 19:43:41,809 - User: 127.0.0.1, Action: uploaded test.txt (unlisted)
+2025-03-30 19:43:45,684 - User: 127.0.0.1, Action: listed files
+2025-03-30 19:43:58,076 - User: test2, Action: login
+2025-03-30 19:44:00,252 - User: 127.0.0.1, Action: listed files
+2025-03-30 19:44:50,229 - User: test, Action: login
+2025-03-30 19:44:55,132 - User: test2, Action: login
+2025-03-30 19:44:57,557 - User: 127.0.0.1, Action: listed files
+2025-03-30 19:44:59,659 - User: 127.0.0.1, Action: listed files
+2025-03-30 19:45:45,440 - User: 127.0.0.1, Action: uploaded test.txt (unlisted)
+2025-03-30 19:45:48,148 - User: 127.0.0.1, Action: listed files
+2025-03-30 19:45:58,172 - User: 127.0.0.1, Action: listed files
+2025-03-30 19:46:26,288 - User: 127.0.0.1, Action: uploaded test.txt (private)
+2025-03-30 19:46:31,563 - User: 127.0.0.1, Action: listed files
+2025-03-30 19:47:01,532 - User: admin, Action: login
+2025-03-30 19:47:03,124 - User: 127.0.0.1, Action: listed files
+2025-03-30 19:47:15,309 - User: test, Action: login
+2025-03-30 19:47:16,653 - User: 127.0.0.1, Action: listed files
+2025-03-30 19:47:29,520 - User: 127.0.0.1, Action: uploaded test.txt (unlisted)
+2025-03-30 19:47:33,820 - User: 127.0.0.1, Action: listed files
+2025-03-30 19:47:38,277 - User: 127.0.0.1, Action: listed files
+2025-03-30 19:47:54,445 - User: test2, Action: login
+2025-03-30 19:47:55,452 - User: 127.0.0.1, Action: listed files
+2025-03-30 19:48:07,053 - User: 127.0.0.1, Action: listed files
+2025-03-30 19:48:55,301 - User: test, Action: login
+2025-03-30 19:49:46,318 - User: test, Action: login
+2025-03-30 19:50:00,081 - User: 127.0.0.1, Action: uploaded test.txt (unlisted)
+2025-03-30 19:50:04,029 - User: 127.0.0.1, Action: listed files
+2025-03-30 19:50:06,014 - User: 127.0.0.1, Action: listed files
+2025-03-30 19:50:07,295 - User: 127.0.0.1, Action: listed files
+2025-03-30 19:50:08,077 - User: 127.0.0.1, Action: listed files
+2025-03-30 19:50:14,175 - User: test, Action: login
+2025-03-30 19:50:15,637 - User: 127.0.0.1, Action: listed files
+2025-03-30 19:50:17,421 - User: 127.0.0.1, Action: listed files
+2025-03-30 19:50:26,813 - User: test2, Action: login
+2025-03-30 19:50:28,036 - User: 127.0.0.1, Action: listed files
+2025-03-30 19:50:34,660 - User: test, Action: login
+2025-03-30 19:50:35,645 - User: 127.0.0.1, Action: listed files
+2025-03-30 19:50:58,924 - User: test, Action: login
+2025-03-30 19:50:59,957 - User: 127.0.0.1, Action: listed files
+2025-03-30 19:51:40,861 - User: test2, Action: login
+2025-03-30 19:51:41,925 - User: 127.0.0.1, Action: listed files
+2025-03-30 19:51:44,773 - User: 127.0.0.1, Action: listed files
+2025-03-30 20:00:19,216 - User: test, Action: login
+2025-03-30 20:00:27,239 - User: test2, Action: login
+2025-03-30 20:00:28,437 - User: 127.0.0.1, Action: listed files
+2025-03-30 20:00:31,269 - User: 127.0.0.1, Action: listed files
+2025-03-30 20:00:49,319 - User: 127.0.0.1, Action: edited test.txt privileges
+2025-03-30 20:00:54,155 - User: 127.0.0.1, Action: listed files
+2025-03-30 20:04:01,375 - User: 127.0.0.1, Action: edited test.txt privileges
+2025-03-30 20:04:04,527 - User: 127.0.0.1, Action: listed files
+2025-03-30 20:04:06,678 - User: 127.0.0.1, Action: listed files
+2025-03-30 20:04:24,198 - User: admin, Action: login
+2025-03-30 20:04:25,437 - User: 127.0.0.1, Action: listed files
+2025-03-30 20:04:54,266 - User: 127.0.0.1, Action: uploaded test.txt (unlisted)
+2025-03-30 20:04:58,370 - User: 127.0.0.1, Action: listed files
+2025-03-30 20:05:02,207 - User: 127.0.0.1, Action: listed files
+2025-03-30 20:05:23,751 - User: 127.0.0.1, Action: edited test.txt privileges
+2025-03-30 20:05:26,955 - User: 127.0.0.1, Action: listed files
+2025-03-30 20:08:23,111 - User: test2, Action: login
+2025-03-30 20:08:24,958 - User: 127.0.0.1, Action: listed files
+2025-03-30 20:08:50,808 - User: 127.0.0.1, Action: edited test.txt privileges
+2025-03-30 20:08:55,219 - User: 127.0.0.1, Action: listed files
+2025-03-30 20:09:22,758 - User: test, Action: login
+2025-03-30 20:09:23,486 - User: 127.0.0.1, Action: listed files
+2025-03-30 20:09:36,456 - User: 127.0.0.1, Action: edited test.txt privileges
+2025-03-30 20:09:52,934 - User: 127.0.0.1, Action: listed files
+2025-03-30 20:15:02,138 - User: test, Action: login
+2025-03-30 20:15:08,296 - User: test2, Action: login
+2025-03-30 20:15:09,878 - User: 127.0.0.1, Action: listed files
+2025-03-30 20:15:23,907 - User: 127.0.0.1, Action: uploaded test.txt (private)
+2025-03-30 20:15:27,460 - User: 127.0.0.1, Action: listed files
+2025-03-30 20:15:37,239 - User: 127.0.0.1, Action: edited test.txt privileges
+2025-03-30 20:15:40,221 - User: 127.0.0.1, Action: listed files
+2025-03-30 20:15:57,376 - User: 127.0.0.1, Action: edited test.txt privileges
+2025-03-30 20:16:01,336 - User: 127.0.0.1, Action: listed files
+2025-03-30 20:16:29,151 - User: 127.0.0.1, Action: edited test.txt privileges
+2025-03-30 20:16:32,433 - User: 127.0.0.1, Action: listed files
+2025-03-30 20:17:13,167 - User: 127.0.0.1, Action: edited test.txt privileges
+2025-03-30 20:17:38,543 - User: 127.0.0.1, Action: edited test.txt privileges
+2025-03-30 20:17:59,690 - User: 127.0.0.1, Action: edited test.txt privileges
+2025-03-30 20:18:18,025 - User: 127.0.0.1, Action: edited test.txt privileges
+2025-03-30 20:18:45,082 - User: 127.0.0.1, Action: edited test.txt privileges
+2025-03-30 20:22:32,577 - User: test2, Action: login
+2025-03-30 20:22:36,144 - User: test, Action: login
+2025-03-30 20:22:53,948 - User: 127.0.0.1, Action: uploaded test.txt (unlisted)
+2025-03-30 20:23:12,936 - User: 127.0.0.1, Action: edited test.txt privileges
+2025-03-30 20:23:16,670 - User: 127.0.0.1, Action: listed files
+2025-03-30 20:23:21,279 - User: 127.0.0.1, Action: listed files
+2025-03-30 20:24:01,993 - User: 127.0.0.1, Action: edited test.txt privileges
+2025-03-30 20:24:06,432 - User: 127.0.0.1, Action: listed files
+2025-03-30 20:24:23,585 - User: 127.0.0.1, Action: edited test.txt privileges
+2025-03-30 20:24:24,975 - User: 127.0.0.1, Action: listed files
+2025-03-30 20:24:28,161 - User: 127.0.0.1, Action: listed files
+2025-03-30 20:24:55,034 - User: 127.0.0.1, Action: deleted test.txt
+2025-03-30 20:32:06,571 - User: David, Action: login
+2025-03-30 20:32:07,800 - User: 127.0.0.1, Action: listed files
