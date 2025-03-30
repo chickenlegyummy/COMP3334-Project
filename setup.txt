@@ -1,180 +1,72 @@
-COMP3334-Project Setup Guide
-============================
+# COMP3334 Project Setup Guide
 
-This guide provides step-by-step instructions to set up and run the COMP3334-Project, a client-server file transfer application with encryption.
-
-Last Updated: March 27, 2025
+This guide helps you set up and run the file storage server and client, and add new users.
 
 ---
 
-Prerequisites
--------------
-1. **Python 3.13** (or compatible version):
-   - Download and install from https://www.python.org/downloads/
-   - Verify installation: Open a terminal and run `python --version` (should output "Python 3.13.x").
-
-2. **Git** (optional, for cloning the repository):
-   - Install from https://git-scm.com/downloads
-   - Verify: Run `git --version`.
-
-3. **Operating System**:
-   - Tested on Windows (e.g., Windows 10/11). Should work on macOS/Linux with minor adjustments.
-
-4. **Text Editor**:
-   - Use any editor (e.g., Notepad, VS Code, PyCharm) to view/edit files.
+## Step 1: Install Python
+- Make sure you have Python 3 installed on your computer.
+- Check by typing `python --version` in your terminal/command prompt.
+- If not installed, download it from python.org and install it.
 
 ---
 
-Project Structure
------------------
-Ensure your project directory (`COMP3334-Project`) contains:
-- src/
-  - client/
-    - client.py
-    - auth.py
-    - file_manager.py
-    - crypto.py
-  - server/
-    - server.py
-    - user_manager.py
-    - file_controller.py
-    - audit_logger.py
-  - common/
-    - protocol.py
-- storage/ (created automatically if missing)
-- users.db (created automatically on first run)
-- audit.log (created automatically on first run)
+## Step 2: Set Up the Project
+1. Open your terminal/command prompt.
+2. Go to the project folder:
+cd C:\path\to\COMP3334-Project
+3. Install required packages:
+pip install cryptography
+---
+
+## Step 3: Run the Server
+1. Start the server:
+python -m src.server.server
+2. You’ll see "Server running on port 5000..." if it works.
+- The server stores files in a "storage" folder and user info in "users.db".
+- Default users:
+- Admin: username "admin", password "adminpassword"
+- Normal: username "test", password "password"
+- Normal: username "test2", password "test2pass"
+- Guest: username "guest", password "guestpass"
 
 ---
 
-Step 1: Clone or Download the Project
--------------------------------------
-1. **If using Git**:
-   - Open a terminal/command prompt.
-   - Navigate to your desired directory: `cd C:\Users\Li\Documents\GitHub`
-   - Clone the repository: `git clone https://github.com/<your-username>/COMP3334-Project.git`
-   - Enter the directory: `cd COMP3334-Project`
-
-2. **If downloading manually**:
-   - Download the project ZIP from GitHub.
-   - Extract to `C:\Users\Li\Documents\GitHub\COMP3334-Project`.
-   - Open a terminal and navigate: `cd C:\Users\Li\Documents\GitHub\COMP3334-Project`
+## Step 4: Run the Client
+1. Open a new terminal/command prompt.
+2. Go to the project folder:
+cd C:\path\to\COMP3334-Project
+3. Edit `src/client/client.py`:
+- Change `SERVER_HOST = "your.server.ip.here"` to `SERVER_HOST = "127.0.0.1"` if testing on your computer.
+4. Start the client:
+python -m src.client.client
+5. Log in with a username and password (e.g., "test" and "password").
+6. Use commands like `upload`, `download`, `list`, `delete`, `edit`, or `exit`.
 
 ---
 
-Step 2: Install Dependencies
-----------------------------
-1. **Install Python packages**:
-   - Open a terminal in the project directory.
-   - Run: `pip install cryptography`
-   - This installs the `cryptography` library needed for file encryption/decryption.
-
-2. **Verify installation**:
-   - Run: `pip show cryptography`
-   - Should display version info (e.g., 43.0.0 or later).
-
----
-
-Step 3: Set Up the Environment
-------------------------------
-1. **Create storage directory** (if not present):
-   - In the project directory, create a `storage` folder:
-     - Windows: `mkdir storage`
-     - Or manually create it via File Explorer.
-
-2. **Optional: Clear previous data**:
-   - Delete `storage/*` (all files), `users.db`, and `audit.log` if they exist, to start fresh.
+## Step 5: Add New Users (Admin Only)
+1. In a terminal, go to the project folder:
+cd C:\path\to\COMP3334-Project
+2. Run the registration tool:
+python -m src.server.register
+3. Follow the prompts:
+- Enter a new username (e.g., "newuser").
+- Enter a password (e.g., "newpass123").
+- Choose a role: "admin", "normal", or "guest".
+- Example:
+Enter username (or 'exit' to quit): newuser
+Enter password: newpass123
+Enter role (admin/normal/guest): normal
+User 'newuser' registered successfully with role 'normal'!
+4. Type "exit" to finish.
+- New users can now log in with the client.
 
 ---
 
-Step 4: Run the Server
-----------------------
-1. **Start the server**:
-   - Open a terminal in the project directory.
-   - Run: `python -m src.server.server`
-   - Expected output:
+## Tips
+- To start fresh, delete the "storage" folder and "users.db" file.
+- If you get errors, check your terminal for messages and make sure the server is running before starting the client.
+- Use `list` to see files, `edit` to change who can see them, and `download` to get files.
 
-User 'test' creation: Success
-Server running on port 5000...
-
-2. **Notes**:
-- The server listens on `0.0.0.0:5000`.
-- It creates a default user (`test` / `password`) in `users.db` if not present.
-- Keep this terminal open while testing.
-
----
-
-Step 5: Run the Client
-----------------------
-1. **Start the client**:
-- Open a second terminal in the project directory.
-- Run: `python -m src.client.client`
-- Expected output:
-
-Username: test
-Password: password
-Authentication successful!
-Enter command (upload/download/list/exit):
-
-2. **Interact with the client**:
-- **List files**: Type `list` to see files in `storage/`.
-- Example: `Files in storage: No files in storage` (if empty).
-- **Upload a file**: Type `upload`, then enter a file path.
-- Example: `Enter file path: C:\Users\Li\Downloads\test.txt`
-- Output: `File uploaded successfully!`
-- **Download a file**: Type `download`, then enter a filename.
-- Example: `Enter filename to download: test.txt`
-- Output: `File downloaded and saved as test.txt`
-- **Exit**: Type `exit` to close the client.
-
----
-
-Step 6: Test the Application
-----------------------------
-1. **Upload a file**:
-- In the client: `upload`
-- Path: `C:\Users\Li\Downloads\COMP3334\COMP3334-Project [Rev. 1].pdf`
-- Check `storage/` for `COMP3334-Project [Rev. 1].pdf` and `COMP3334-Project [Rev. 1].pdf.key`.
-
-2. **List files**:
-- In the client: `list`
-- Should show: `COMP3334-Project [Rev. 1].pdf`.
-
-3. **Download the file**:
-- In the client: `download`
-- Filename: `COMP3334-Project [Rev. 1].pdf`
-- Should save the decrypted file locally.
-
-4. **Verify**:
-- Open the downloaded file to ensure it matches the original.
-
----
-
-Troubleshooting
----------------
-1. **Error: "ModuleNotFoundError: No module named 'cryptography'"**
-- Solution: Run `pip install cryptography`.
-
-2. **Error: "Connection refused"**
-- Ensure the server is running first (`python -m src.server.server`).
-- Check the client connects to `localhost:5000`.
-
-3. **Error: "InvalidToken" or "Incorrect padding"**
-- Clear `storage/` and re-upload files with the latest code.
-- Ensure server and client are using the same version of the code.
-
-4. **Files with spaces/special characters fail**:
-- Verify you’re using the latest `file_manager.py` with the socket buffering fix (looping `recv`).
-
-5. **Server logs issues**:
-- Check server output for errors (e.g., "Key not found", "File not found").
-
----
-
-Additional Notes
-----------------
-- **Security**: This project uses Fernet encryption. Keys are stored plaintext in `storage/*.key` files (not secure for production).
-- **Limitations**: Single-threaded client; server handles multiple clients via threads.
-- **Enhancements**: Add error handling, support for larger files, or secure key management for production use.
-
-For help, contact the project maintainer or refer to the source code comments.
+Enjoy using the file storage system!
