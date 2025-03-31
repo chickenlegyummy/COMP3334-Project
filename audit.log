@@ -159,3 +159,15 @@
 2025-03-30 20:24:55,034 - User: 127.0.0.1, Action: deleted test.txt
 2025-03-30 20:32:06,571 - User: David, Action: login
 2025-03-30 20:32:07,800 - User: 127.0.0.1, Action: listed files
+2025-03-31 14:10:10,012 - User: test, Action: login
+2025-03-31 14:11:13,928 - User: 127.0.0.1, Action: uploaded test.txt (private)
+2025-03-31 14:12:50,710 - User: 127.0.0.1, Action: downloaded test.txt
+2025-03-31 14:13:36,427 - User: 127.0.0.1, Action: downloaded test.txt
+2025-03-31 14:13:51,165 - User: 127.0.0.1, Action: listed files
+2025-03-31 14:23:46,903 - User: test, Action: login
+2025-03-31 14:24:48,505 - User: 127.0.0.1, Action: uploaded test.txt (private)
+2025-03-31 14:25:29,934 - User: 127.0.0.1, Action: downloaded test.txt
+2025-03-31 14:25:45,441 - User: 127.0.0.1, Action: downloaded test.txt
+2025-03-31 14:26:18,880 - User: 127.0.0.1, Action: uploaded test.txt (unlisted)
+2025-03-31 14:27:28,651 - User: 127.0.0.1, Action: downloaded test.txt
+2025-03-31 14:29:43,764 - User: test2, Action: login

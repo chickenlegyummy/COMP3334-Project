@@ -4,7 +4,7 @@ from .user_manager import UserManager
 from .file_controller import FileController
 from .audit_logger import AuditLogger
 from src.common.protocol import Protocol
-from cryptography.fernet import Fernet
+from src.client.crypto import Crypto  # Import from client directory  # Changed from Fernet import to our custom Crypto class
 
 class Server:
     def __init__(self, host, port):
@@ -14,6 +14,7 @@ class Server:
         self.file_controller = FileController("storage")
         self.logger = AuditLogger("audit.log")
         self.running = True
+        self.crypto = Crypto()  # Added Crypto instance
     
     def run(self):
         self.socket.listen()
