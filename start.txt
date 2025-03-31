@@ -1,3 +1,4 @@
 python -m src.server.server
 python -m src.client.client
 taskkill /F /IM python.exe
+taskkill /F /IM python3.10.exe
