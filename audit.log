@@ -184,3 +184,13 @@
 2025-04-05 13:05:41,492 - User: test3, Action: logout
 2025-04-05 13:05:47,770 - User: test3, Action: login
 2025-04-05 13:06:00,834 - User: test3, Action: logout
+2025-04-05 13:10:32,258 - User: test3, Action: login
+2025-04-05 13:13:01,429 - User: test3, Action: logout
+2025-04-05 13:18:25,494 - User: test3, Action: login
+2025-04-05 13:18:30,342 - User: 127.0.0.1, Action: listed files
+2025-04-05 13:18:47,795 - User: 127.0.0.1, Action: downloaded test.txt
+2025-04-05 13:19:27,510 - User: 127.0.0.1, Action: updated test.txt
+2025-04-05 13:21:21,313 - User: 127.0.0.1, Action: uploaded michael-sum-LEpfefQf4rU-unsplash.jpg (private)
+2025-04-05 13:22:26,144 - User: 127.0.0.1, Action: downloaded michael-sum-LEpfefQf4rU-unsplash.jpg
+2025-04-05 13:22:41,092 - User: 127.0.0.1, Action: updated michael-sum-LEpfefQf4rU-unsplash.jpg
+2025-04-05 13:23:02,273 - User: test3, Action: logout
