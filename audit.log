@@ -241,3 +241,14 @@
 2025-04-05 15:12:27,495 - User: test5, Action: login
 2025-04-05 15:12:31,903 - User: 127.0.0.1, Action: listed files
 2025-04-05 15:13:17,558 - User: test5, Action: logout
+2025-04-05 15:19:59,143 - User: test5, Action: login
+2025-04-05 15:20:13,997 - User: 127.0.0.1, Action: downloaded test.txt
+2025-04-05 15:20:25,134 - User: 127.0.0.1, Action: updated test.txt
+2025-04-05 15:21:49,483 - User: 127.0.0.1, Action: uploaded test space.txt (private)
+2025-04-05 17:37:39,059 - User: test5, Action: logout
+2025-04-05 17:47:39,015 - User: test5, Action: login
+2025-04-05 17:47:48,817 - User: 127.0.0.1, Action: listed files
+2025-04-05 17:47:55,221 - User: 127.0.0.1, Action: downloaded test space.txt
+2025-04-05 17:48:11,534 - User: 127.0.0.1, Action: updated test space.txt
+2025-04-05 17:49:01,976 - User: 127.0.0.1, Action: listed files
+2025-04-05 17:49:09,255 - User: test5, Action: logout

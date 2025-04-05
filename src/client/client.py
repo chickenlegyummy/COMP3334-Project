@@ -299,13 +299,20 @@ class Client:
         self.file_manager.upload_file(filepath, self.crypto, visibility)
     
     def handle_download(self):
+        # Show available files first
+        self.handle_list()
+        
         filename = input("Enter filename to download: ").strip()
         if not filename:
             print("Filename cannot be empty.")
             return
+        
+        # Don't sanitize the filename - this might remove spaces
+        # Just ensure basic validation without affecting the spaces
+        if not re.match(r'^[a-zA-Z0-9\s\.\-_]+$', filename):
+            print("Invalid filename. Please use only letters, numbers, spaces, and characters .-_")
+            return
             
-        # Sanitize filename
-        filename = SecurityUtils.sanitize_filename(filename)
         self.file_manager.download_file(filename, self.crypto)
     
     def handle_list(self):
@@ -321,13 +328,20 @@ class Client:
             print("Error listing files: " + response.split(":", 1)[1] if ":" in response else response)
     
     def handle_delete(self):
+        # Show available files first
+        self.handle_list()
+        
         filename = input("Enter filename to delete: ").strip()
         if not filename:
             print("Filename cannot be empty.")
             return
+        
+        # Don't sanitize the filename - this might remove spaces
+        # Just ensure basic validation without affecting the spaces
+        if not re.match(r'^[a-zA-Z0-9\s\.\-_]+$', filename):
+            print("Invalid filename. Please use only letters, numbers, spaces, and characters .-_")
+            return
             
-        # Sanitize filename
-        filename = SecurityUtils.sanitize_filename(filename)
         self.socket.send(f"DELETE:{filename}".encode())
         response = self.socket.recv(1024).decode()
         if response == "DELETE_SUCCESS":
@@ -336,13 +350,19 @@ class Client:
             print(f"Error deleting file: {response.split(':', 1)[1] if ':' in response else response}")
     
     def handle_edit_permissions(self):
+        # Show available files first
+        self.handle_list()
+        
         filename = input("Enter filename to edit permissions: ").strip()
         if not filename:
             print("Filename cannot be empty.")
             return
-            
-        # Sanitize filename
-        filename = SecurityUtils.sanitize_filename(filename)
+        
+        # Don't sanitize the filename - this might remove spaces
+        # Just ensure basic validation without affecting the spaces
+        if not re.match(r'^[a-zA-Z0-9\s\.\-_]+$', filename):
+            print("Invalid filename. Please use only letters, numbers, spaces, and characters .-_")
+            return
         
         visibility = input("New visibility (private/public/unlisted, or leave blank): ").lower().strip()
         if visibility and visibility not in ["private", "public", "unlisted"]:
@@ -399,14 +419,20 @@ class Client:
             print(f"Error editing file: {response.split(':', 1)[1] if ':' in response else response}")
     
     def handle_edit_content(self):
+        # Show available files first
+        self.handle_list()
+        
         # This function allows users to edit their own files
         filename = input("Enter filename to edit content: ").strip()
         if not filename:
             print("Filename cannot be empty.")
             return
-            
-        # Sanitize filename
-        filename = SecurityUtils.sanitize_filename(filename)
+        
+        # Don't sanitize the filename - this might remove spaces
+        # Just ensure basic validation without affecting the spaces
+        if not re.match(r'^[a-zA-Z0-9\s\.\-_]+$', filename):
+            print("Invalid filename. Please use only letters, numbers, spaces, and characters .-_")
+            return
         
         # Download the file first
         self.socket.send(f"DOWNLOAD:{filename}".encode())
@@ -444,10 +470,13 @@ class Client:
         try:
             decrypted_data = self.crypto.decrypt(encrypted_data, key)
             
+            # Create a clean filename for the temp file
+            safe_filename = filename.replace(" ", "_")
+            
             # Save to a temporary file for editing
             temp_dir = "temp_edits"
             os.makedirs(temp_dir, exist_ok=True)
-            temp_filename = f"{temp_dir}/temp_{filename}"
+            temp_filename = f"{temp_dir}/temp_{safe_filename}"
             
             with open(temp_filename, "wb") as f:
                 f.write(decrypted_data)
