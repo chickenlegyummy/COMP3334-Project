@@ -1,7 +1,9 @@
 import socket
 import os
 import getpass
-from src.common.totp import TOTP  # Import our custom TOTP implementation
+import re
+from src.common.totp import TOTP
+from src.common.security import SecurityUtils
 from .auth import authenticate, verify_mfa, request_password_reset
 from .file_manager import FileManager
 from .crypto import Crypto
@@ -28,6 +30,8 @@ class Client:
                     self.main_loop()
         except socket.error as e:
             print(f"Network error: {e}")
+        except KeyboardInterrupt:
+            print("\nApplication terminated by user.")
         except Exception as e:
             print(f"Unexpected error: {e}")
         finally:
@@ -62,6 +66,11 @@ class Client:
             if authenticate(self.socket):
                 print("Authentication successful!")
                 self.current_user = input("Enter your username again to confirm: ")
+                # Validate username to prevent injection
+                if not re.match(r'^[\w@\.\+\-]{3,30}$', self.current_user):
+                    print("Invalid username format.")
+                    self.current_user = None
+                    return False
                 return True
             else:
                 print("Authentication failed!")
@@ -71,15 +80,33 @@ class Client:
             return False
     
     def register(self):
-        username = input("Create username: ")
-        password = getpass.getpass("Create password: ")
-        confirm_password = getpass.getpass("Confirm password: ")
+        # Get username with validation
+        while True:
+            username = input("Create username (3-30 characters, alphanumeric and @.+-_): ")
+            if re.match(r'^[\w@\.\+\-]{3,30}$', username):
+                break
+            print("Invalid username format. Please use letters, numbers, and the characters @.+-_")
         
-        if password != confirm_password:
-            print("Passwords do not match!")
-            return
+        # Get password with validation
+        while True:
+            password = getpass.getpass("Create password: ")
+            is_strong, message = SecurityUtils.is_password_strong(password)
+            if not is_strong:
+                print(message)
+                continue
+                
+            confirm_password = getpass.getpass("Confirm password: ")
+            if password != confirm_password:
+                print("Passwords do not match!")
+                continue
+            break
         
-        email = input("Enter your email for account recovery: ")
+        # Get email with validation
+        while True:
+            email = input("Enter your email for account recovery: ")
+            if re.match(r'^[^@]+@[^@]+\.[^@]+$', email):
+                break
+            print("Invalid email format. Please enter a valid email address.")
         
         # Ask if user wants to set up MFA
         setup_mfa = input("Do you want to set up Multi-Factor Authentication (y/n)? ").lower() == 'y'
@@ -115,8 +142,19 @@ class Client:
             print(f"Registration failed: {response.split(':', 1)[1] if ':' in response else response}")
     
     def reset_password(self):
-        username = input("Enter your username: ")
-        email = input("Enter your registered email: ")
+        # Get username with validation
+        while True:
+            username = input("Enter your username: ")
+            if re.match(r'^[\w@\.\+\-]{3,30}$', username):
+                break
+            print("Invalid username format.")
+        
+        # Get email with validation
+        while True:
+            email = input("Enter your registered email: ")
+            if re.match(r'^[^@]+@[^@]+\.[^@]+$', email):
+                break
+            print("Invalid email format.")
         
         response = request_password_reset(self.socket, username, email)
         
@@ -128,12 +166,19 @@ class Client:
             user_code = input("Enter the verification code: ")
             
             if user_code == verification_code:
-                new_password = getpass.getpass("Enter new password: ")
-                confirm_password = getpass.getpass("Confirm new password: ")
-                
-                if new_password != confirm_password:
-                    print("Passwords do not match!")
-                    return
+                # Get and validate new password
+                while True:
+                    new_password = getpass.getpass("Enter new password: ")
+                    is_strong, message = SecurityUtils.is_password_strong(new_password)
+                    if not is_strong:
+                        print(message)
+                        continue
+                        
+                    confirm_password = getpass.getpass("Confirm new password: ")
+                    if new_password != confirm_password:
+                        print("Passwords do not match!")
+                        continue
+                    break
                 
                 self.socket.send(f"RESET_PASSWORD:{username}:{new_password}".encode())
                 response = self.socket.recv(1024).decode()
@@ -161,12 +206,20 @@ class Client:
     
     def change_password(self):
         current_password = getpass.getpass("Enter current password: ")
-        new_password = getpass.getpass("Enter new password: ")
-        confirm_password = getpass.getpass("Confirm new password: ")
         
-        if new_password != confirm_password:
-            print("New passwords do not match!")
-            return
+        # Get and validate new password
+        while True:
+            new_password = getpass.getpass("Enter new password: ")
+            is_strong, message = SecurityUtils.is_password_strong(new_password)
+            if not is_strong:
+                print(message)
+                continue
+                
+            confirm_password = getpass.getpass("Confirm new password: ")
+            if new_password != confirm_password:
+                print("Passwords do not match!")
+                continue
+            break
         
         self.socket.send(f"CHANGE_PASSWORD:{self.current_user}:{current_password}:{new_password}".encode())
         response = self.socket.recv(1024).decode()
@@ -235,10 +288,14 @@ class Client:
         if not filepath:
             print("File path cannot be empty.")
             return
-        visibility = input("Set visibility (private/public/unlisted): ").lower().strip()
-        if visibility not in ["private", "public", "unlisted"]:
+            
+        # Validate visibility
+        while True:
+            visibility = input("Set visibility (private/public/unlisted): ").lower().strip()
+            if visibility in ["private", "public", "unlisted"]:
+                break
             print("Invalid visibility. Use: private, public, or unlisted.")
-            return
+            
         self.file_manager.upload_file(filepath, self.crypto, visibility)
     
     def handle_download(self):
@@ -246,6 +303,9 @@ class Client:
         if not filename:
             print("Filename cannot be empty.")
             return
+            
+        # Sanitize filename
+        filename = SecurityUtils.sanitize_filename(filename)
         self.file_manager.download_file(filename, self.crypto)
     
     def handle_list(self):
@@ -265,6 +325,9 @@ class Client:
         if not filename:
             print("Filename cannot be empty.")
             return
+            
+        # Sanitize filename
+        filename = SecurityUtils.sanitize_filename(filename)
         self.socket.send(f"DELETE:{filename}".encode())
         response = self.socket.recv(1024).decode()
         if response == "DELETE_SUCCESS":
@@ -277,6 +340,10 @@ class Client:
         if not filename:
             print("Filename cannot be empty.")
             return
+            
+        # Sanitize filename
+        filename = SecurityUtils.sanitize_filename(filename)
+        
         visibility = input("New visibility (private/public/unlisted, or leave blank): ").lower().strip()
         if visibility and visibility not in ["private", "public", "unlisted"]:
             print("Invalid visibility. Use: private, public, unlisted, or leave blank.")
@@ -295,14 +362,34 @@ class Client:
             else:
                 print(f"Error fetching allowed users: {response.split(':', 1)[1] if ':' in response else response}")
                 return
+                
             add_users_input = input("Users to add (comma-separated, or leave blank): ").strip()
             remove_users_input = input("Users to remove (comma-separated, or leave blank): ").strip()
-            # Clean up add_users and remove_users by removing extra spaces
-            add_users = ",".join([u.strip() for u in add_users_input.split(",") if u.strip()]) if add_users_input else ""
-            remove_users = ",".join([u.strip() for u in remove_users_input.split(",") if u.strip()]) if remove_users_input else ""
+            
+            # Validate and sanitize usernames
+            add_users = []
+            for user in add_users_input.split(","):
+                user = user.strip()
+                if user and re.match(r'^[\w@\.\+\-]{3,30}$', user):
+                    add_users.append(user)
+                elif user:
+                    print(f"Warning: Skipping invalid username '{user}'")
+                    
+            remove_users = []
+            for user in remove_users_input.split(","):
+                user = user.strip()
+                if user and re.match(r'^[\w@\.\+\-]{3,30}$', user):
+                    remove_users.append(user)
+                elif user:
+                    print(f"Warning: Skipping invalid username '{user}'")
+            
+            # Join validated usernames
+            add_users_str = ",".join(add_users) if add_users else ""
+            remove_users_str = ",".join(remove_users) if remove_users else ""
+            
             cmd += f":{visibility}" if visibility else ":"
-            cmd += f":{add_users}" if add_users else ":"
-            cmd += f":{remove_users}" if remove_users else ":"
+            cmd += f":{add_users_str}" if add_users_str else ":"
+            cmd += f":{remove_users_str}" if remove_users_str else ":"
         
         self.socket.send(cmd.encode())
         response = self.socket.recv(1024).decode()
@@ -317,6 +404,9 @@ class Client:
         if not filename:
             print("Filename cannot be empty.")
             return
+            
+        # Sanitize filename
+        filename = SecurityUtils.sanitize_filename(filename)
         
         # Download the file first
         self.socket.send(f"DOWNLOAD:{filename}".encode())
@@ -327,6 +417,14 @@ class Client:
             return
         
         size = int(response.split(":", 1)[1])
+        
+        # Check if file size is reasonable
+        if size > 10 * 1024 * 1024:  # 10MB for editing
+            print("File is too large for editing. Please use a smaller file.")
+            # Cancel download
+            self.socket.send("CANCEL_DOWNLOAD".encode())
+            return
+        
         encrypted_data = b""
         while len(encrypted_data) < size:
             chunk = self.socket.recv(size - len(encrypted_data))
@@ -347,7 +445,10 @@ class Client:
             decrypted_data = self.crypto.decrypt(encrypted_data, key)
             
             # Save to a temporary file for editing
-            temp_filename = f"temp_{filename}"
+            temp_dir = "temp_edits"
+            os.makedirs(temp_dir, exist_ok=True)
+            temp_filename = f"{temp_dir}/temp_{filename}"
+            
             with open(temp_filename, "wb") as f:
                 f.write(decrypted_data)
             
@@ -359,6 +460,11 @@ class Client:
             # Check if file exists and read it
             if not os.path.exists(temp_filename):
                 print("Error: Temporary file not found after editing!")
+                return
+            
+            # Check if file size is still reasonable
+            if os.path.getsize(temp_filename) > 10 * 1024 * 1024:
+                print("Error: Edited file is too large (max 10MB).")
                 return
             
             with open(temp_filename, "rb") as f:

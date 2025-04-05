@@ -4,6 +4,7 @@ import hashlib
 import base64
 import secrets
 import struct
+import urllib.parse
 
 class TOTP:
     """
@@ -145,19 +146,17 @@ class TOTP:
         
         return False
     
-    def provisioning_uri(self, account_name, issuer="Secure File Sharing"):
+    def provisioning_uri(self, account_name, issuer="SecureFileSharing"):
         """
         Generate a URI for provisioning the TOTP to an authenticator app
         
         Parameters:
         - account_name: Name of the account
-        - issuer: Name of the issuer (default: "Secure File Sharing")
+        - issuer: Name of the issuer (default: "SecureFileSharing")
         
         Returns:
         - otpauth URI
         """
-        import urllib.parse
-        
         # Ensure the account name and issuer are properly encoded
         account_name = urllib.parse.quote(account_name)
         issuer = urllib.parse.quote(issuer)
@@ -171,21 +170,3 @@ class TOTP:
                f"period={self.period}")
         
         return uri
-
-# Example usage:
-if __name__ == "__main__":
-    # Generate a new secret
-    totp = TOTP()
-    print(f"Secret: {totp.secret}")
-    
-    # Generate a code
-    code = totp.now()
-    print(f"Current code: {code}")
-    
-    # Verify the code
-    is_valid = totp.verify(code)
-    print(f"Code valid: {is_valid}")
-    
-    # Generate a URI for provisioning
-    uri = totp.provisioning_uri("test@example.com")
-    print(f"Provisioning URI: {uri}")
