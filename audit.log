@@ -171,3 +171,16 @@
 2025-03-31 14:26:18,880 - User: 127.0.0.1, Action: uploaded test.txt (unlisted)
 2025-03-31 14:27:28,651 - User: 127.0.0.1, Action: downloaded test.txt
 2025-03-31 14:29:43,764 - User: test2, Action: login
+2025-04-05 12:58:45,836 - User: test3, Action: login with MFA
+2025-04-05 12:59:10,882 - User: 127.0.0.1, Action: listed files
+2025-04-05 13:00:15,637 - User: 127.0.0.1, Action: uploaded test.txt (private)
+2025-04-05 13:00:35,928 - User: 127.0.0.1, Action: downloaded test.txt
+2025-04-05 13:01:08,735 - User: 127.0.0.1, Action: listed files
+2025-04-05 13:01:51,445 - User: 127.0.0.1, Action: listed files
+2025-04-05 13:02:03,555 - User: 127.0.0.1, Action: downloaded test.txt
+2025-04-05 13:02:53,977 - User: 127.0.0.1, Action: updated test.txt
+2025-04-05 13:04:47,134 - User: 127.0.0.1, Action: edited test.txt privileges
+2025-04-05 13:04:50,852 - User: 127.0.0.1, Action: listed files
+2025-04-05 13:05:41,492 - User: test3, Action: logout
+2025-04-05 13:05:47,770 - User: test3, Action: login
+2025-04-05 13:06:00,834 - User: test3, Action: logout
