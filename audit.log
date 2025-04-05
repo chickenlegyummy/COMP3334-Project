@@ -209,3 +209,21 @@
 2025-04-05 13:49:08,134 - User: test4, Action: logout
 2025-04-05 13:49:12,839 - User: test3, Action: login
 2025-04-05 13:49:18,839 - User: test3, Action: logout
+2025-04-05 13:56:06,369 - User: test3, Action: login
+2025-04-05 13:56:12,193 - User: test3, Action: logout
+2025-04-05 13:56:25,837 - User: test4, Action: login with MFA
+2025-04-05 13:56:41,334 - User: test4, Action: logout
+2025-04-05 13:58:28,655 - User: test5, Action: login with MFA
+2025-04-05 13:58:45,698 - User: 127.0.0.1, Action: uploaded test.txt (public)
+2025-04-05 13:58:55,202 - User: 127.0.0.1, Action: downloaded test.txt
+2025-04-05 13:59:32,855 - User: 127.0.0.1, Action: updated test.txt
+2025-04-05 13:59:36,774 - User: test5, Action: logout
+2025-04-05 13:59:42,952 - User: test3, Action: login
+2025-04-05 13:59:57,081 - User: 127.0.0.1, Action: downloaded test.txt
+2025-04-05 14:00:36,072 - User: test3, Action: logout
+2025-04-05 14:01:04,887 - User: test3, Action: login
+2025-04-05 14:01:13,037 - User: 127.0.0.1, Action: downloaded test.txt
+2025-04-05 14:02:26,624 - User: 127.0.0.1, Action: uploaded test.txt (public)
+2025-04-05 14:02:40,226 - User: 127.0.0.1, Action: downloaded test.txt
+2025-04-05 14:02:46,153 - User: 127.0.0.1, Action: updated test.txt
+2025-04-05 14:02:52,589 - User: test3, Action: logout

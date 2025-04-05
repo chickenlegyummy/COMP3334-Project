@@ -1,5 +1,5 @@
 import getpass
-import pyotp
+
 
 def authenticate(socket):
     username = input("Username: ")
