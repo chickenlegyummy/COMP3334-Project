@@ -8,6 +8,7 @@ from .user_manager import UserManager
 from .file_controller import FileController
 from .audit_logger import AuditLogger
 from src.common.protocol import Protocol
+from src.common.totp import TOTP  # If needed directly in server.py
 from src.client.crypto import Crypto
 
 class Server:

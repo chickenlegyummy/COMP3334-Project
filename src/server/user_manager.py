@@ -1,10 +1,10 @@
 import sqlite3
 import hashlib
 import os
-import pyotp
 import time
 import uuid
 from datetime import datetime, timedelta
+from src.common.totp import TOTP  # Import our custom TOTP implementation
 
 class UserManager:
     def __init__(self):
@@ -100,8 +100,8 @@ class UserManager:
         if not result or not result[0]:
             return False
         
-        # Verify TOTP code
-        totp = pyotp.TOTP(result[0])
+        # Verify TOTP code using our custom implementation
+        totp = TOTP(secret=result[0])
         return totp.verify(code)
     
     def register_user(self, username, password, email, role="normal", mfa_secret=None):
@@ -245,7 +245,9 @@ class UserManager:
     
     def enable_mfa(self, username):
         """Enable MFA for a user"""
-        mfa_secret = pyotp.random_base32()
+        # Use our custom TOTP implementation
+        totp = TOTP()
+        mfa_secret = totp.secret
         
         conn = sqlite3.connect(self.db_path)
         c = conn.cursor()

@@ -1,7 +1,7 @@
 import socket
 import os
 import getpass
-import pyotp
+from src.common.totp import TOTP  # Import our custom TOTP implementation
 from .auth import authenticate, verify_mfa, request_password_reset
 from .file_manager import FileManager
 from .crypto import Crypto
@@ -86,18 +86,18 @@ class Client:
         mfa_secret = None
         
         if setup_mfa:
-            mfa_secret = pyotp.random_base32()
-            totp = pyotp.TOTP(mfa_secret)
+            # Use our custom TOTP implementation
+            totp = TOTP()
+            mfa_secret = totp.secret
             print("\nMFA Setup")
             print(f"Your MFA secret: {mfa_secret}")
             print("Please save this secret or scan the QR code in your authenticator app (Google Authenticator, Authy, etc.)")
-            print(f"QR Code URL: otpauth://totp/SecureFileSharing:{username}?secret={mfa_secret}&issuer=SecureFileSharing")
+            print(f"QR Code URL: {totp.provisioning_uri(username)}")
             
             # Verify the user has set up MFA
             print("\nVerify your MFA setup:")
             verification_code = input("Enter the code from your authenticator app: ")
             
-            totp = pyotp.TOTP(mfa_secret)
             if not totp.verify(verification_code):
                 print("Invalid verification code. MFA setup failed. Please try again.")
                 return
@@ -410,14 +410,15 @@ class Client:
             
             if response.startswith("MFA_ENABLED:"):
                 mfa_secret = response.split(":")[1]
+                # Use our custom TOTP implementation
+                totp = TOTP(secret=mfa_secret)
                 print("\nMFA has been enabled!")
                 print(f"Your MFA secret: {mfa_secret}")
                 print("Please save this secret or scan the QR code in your authenticator app")
-                print(f"QR Code URL: otpauth://totp/SecureFileSharing:{self.current_user}?secret={mfa_secret}&issuer=SecureFileSharing")
+                print(f"QR Code URL: {totp.provisioning_uri(self.current_user)}")
                 
                 # Verify setup
                 verification_code = input("\nEnter the code from your authenticator app to verify setup: ")
-                totp = pyotp.TOTP(mfa_secret)
                 
                 if totp.verify(verification_code):
                     print("MFA setup verified successfully!")

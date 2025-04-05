@@ -194,3 +194,18 @@
 2025-04-05 13:22:26,144 - User: 127.0.0.1, Action: downloaded michael-sum-LEpfefQf4rU-unsplash.jpg
 2025-04-05 13:22:41,092 - User: 127.0.0.1, Action: updated michael-sum-LEpfefQf4rU-unsplash.jpg
 2025-04-05 13:23:02,273 - User: test3, Action: logout
+2025-04-05 13:42:58,067 - User: test3, Action: login
+2025-04-05 13:43:10,640 - User: test3, Action: logout
+2025-04-05 13:45:38,419 - User: test4, Action: login with MFA
+2025-04-05 13:45:53,256 - User: 127.0.0.1, Action: uploaded test.txt (unlisted)
+2025-04-05 13:46:02,599 - User: 127.0.0.1, Action: listed files
+2025-04-05 13:46:30,774 - User: 127.0.0.1, Action: downloaded test.txt
+2025-04-05 13:47:06,125 - User: 127.0.0.1, Action: updated test.txt
+2025-04-05 13:47:27,353 - User: 127.0.0.1, Action: downloaded test.txt
+2025-04-05 13:47:41,840 - User: 127.0.0.1, Action: updated test.txt
+2025-04-05 13:48:03,749 - User: 127.0.0.1, Action: downloaded test.txt
+2025-04-05 13:48:11,376 - User: 127.0.0.1, Action: updated test.txt
+2025-04-05 13:48:59,468 - User: 127.0.0.1, Action: listed files
+2025-04-05 13:49:08,134 - User: test4, Action: logout
+2025-04-05 13:49:12,839 - User: test3, Action: login
+2025-04-05 13:49:18,839 - User: test3, Action: logout
