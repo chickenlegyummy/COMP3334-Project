@@ -252,3 +252,58 @@
 2025-04-05 17:48:11,534 - User: 127.0.0.1, Action: updated test space.txt
 2025-04-05 17:49:01,976 - User: 127.0.0.1, Action: listed files
 2025-04-05 17:49:09,255 - User: test5, Action: logout
+2025-04-05 18:07:16,937 - User: test5, Action: login
+2025-04-05 18:08:26,755 - User: 127.0.0.1, Action: uploaded test space.txt (public)
+2025-04-05 18:08:40,227 - User: 127.0.0.1, Action: listed files
+2025-04-05 18:08:47,888 - User: 127.0.0.1, Action: listed files
+2025-04-05 18:08:50,669 - User: 127.0.0.1, Action: downloaded test space.txt
+2025-04-05 18:08:58,202 - User: 127.0.0.1, Action: updated test space.txt
+2025-04-05 18:09:23,410 - User: 127.0.0.1, Action: listed files
+2025-04-05 18:10:34,170 - User: test5, Action: logout
+2025-04-07 12:41:07,718 - User: test5, Action: login
+2025-04-07 12:41:17,849 - User: 127.0.0.1, Action: listed files
+2025-04-07 12:41:38,893 - User: 127.0.0.1, Action: downloaded test space.txt
+2025-04-07 12:42:08,916 - User: 127.0.0.1, Action: updated test space.txt
+2025-04-07 12:42:21,007 - User: 127.0.0.1, Action: listed files
+2025-04-07 12:42:30,478 - User: 127.0.0.1, Action: downloaded test space.txt
+2025-04-07 12:42:37,660 - User: 127.0.0.1, Action: updated test space.txt
+2025-04-07 12:42:42,230 - User: 127.0.0.1, Action: listed files
+2025-04-07 12:43:16,095 - User: 127.0.0.1, Action: uploaded Checked.docx (private)
+2025-04-07 12:43:24,058 - User: 127.0.0.1, Action: listed files
+2025-04-07 12:43:27,324 - User: 127.0.0.1, Action: listed files
+2025-04-07 12:43:33,247 - User: 127.0.0.1, Action: listed files
+2025-04-07 12:43:35,738 - User: 127.0.0.1, Action: downloaded Checked.docx
+2025-04-07 12:51:52,963 - User: test5, Action: logout
+2025-04-07 12:55:34,263 - User: test5, Action: login
+2025-04-07 12:55:48,101 - User: 127.0.0.1, Action: listed files
+2025-04-07 12:56:01,770 - User: 127.0.0.1, Action: listed files
+2025-04-07 12:56:15,445 - User: 127.0.0.1, Action: downloaded Checked.docx
+2025-04-07 12:57:17,804 - User: 127.0.0.1, Action: updated Checked.docx
+2025-04-07 12:57:31,283 - User: 127.0.0.1, Action: listed files
+2025-04-07 12:57:37,211 - User: 127.0.0.1, Action: downloaded Checked.docx
+2025-04-07 12:58:20,058 - User: 127.0.0.1, Action: updated Checked.docx
+2025-04-07 12:58:34,464 - User: 127.0.0.1, Action: listed files
+2025-04-07 12:58:38,961 - User: 127.0.0.1, Action: downloaded Checked.docx
+2025-04-07 12:58:48,879 - User: 127.0.0.1, Action: updated Checked.docx
+2025-04-07 12:58:53,645 - User: 127.0.0.1, Action: listed files
+2025-04-07 12:58:55,175 - User: 127.0.0.1, Action: downloaded Checked.docx
+2025-04-07 12:59:10,733 - User: 127.0.0.1, Action: updated Checked.docx
+2025-04-07 12:59:14,700 - User: 127.0.0.1, Action: listed files
+2025-04-07 12:59:15,915 - User: 127.0.0.1, Action: downloaded Checked.docx
+2025-04-07 12:59:48,818 - User: 127.0.0.1, Action: updated Checked.docx
+2025-04-07 13:01:04,536 - User: 127.0.0.1, Action: listed files
+2025-04-07 13:01:09,802 - User: 127.0.0.1, Action: downloaded Checked.docx
+2025-04-07 13:02:24,710 - User: test5, Action: logout
+2025-04-07 13:03:16,455 - User: test5, Action: login
+2025-04-07 13:03:20,247 - User: 127.0.0.1, Action: listed files
+2025-04-07 13:03:34,786 - User: 127.0.0.1, Action: downloaded Checked.docx
+2025-04-07 13:04:34,034 - User: 127.0.0.1, Action: updated Checked.docx
+2025-04-07 13:04:45,720 - User: test5, Action: logout
+2025-04-07 13:17:04,927 - User: test5, Action: login
+2025-04-07 13:17:09,775 - User: 127.0.0.1, Action: listed files
+2025-04-07 13:17:15,897 - User: 127.0.0.1, Action: downloaded Checked.docx
+2025-04-07 13:17:24,573 - User: 127.0.0.1, Action: updated Checked.docx
+2025-04-07 13:17:44,398 - User: 127.0.0.1, Action: listed files
+2025-04-07 13:17:48,251 - User: 127.0.0.1, Action: listed files
+2025-04-07 13:17:54,147 - User: 127.0.0.1, Action: downloaded Checked.docx
+2025-04-07 13:18:01,493 - User: 127.0.0.1, Action: updated Checked.docx

@@ -2,6 +2,10 @@ import socket
 import os
 import getpass
 import re
+import time
+import platform
+import subprocess
+import signal
 from src.common.totp import TOTP
 from src.common.security import SecurityUtils
 from .auth import authenticate, verify_mfa, request_password_reset
@@ -16,6 +20,8 @@ class Client:
             self.file_manager = FileManager(self.socket)
             self.crypto = Crypto()
             self.current_user = None
+            # Track launched processes for cleanup
+            self.opened_processes = []
         except socket.error as e:
             print(f"Failed to connect to server {host}:{port}: {e}")
             raise
@@ -468,6 +474,9 @@ class Client:
         
         # Decrypt the file
         try:
+            # Clear any existing tracked processes
+            self.opened_processes = []
+            
             decrypted_data = self.crypto.decrypt(encrypted_data, key)
             
             # Create a clean filename for the temp file
@@ -478,26 +487,84 @@ class Client:
             os.makedirs(temp_dir, exist_ok=True)
             temp_filename = f"{temp_dir}/temp_{safe_filename}"
             
-            with open(temp_filename, "wb") as f:
+            # Get the full path to the temporary file
+            temp_filepath = os.path.abspath(temp_filename)
+            
+            # Make sure we close the file handle after writing
+            with open(temp_filepath, "wb") as f:
                 f.write(decrypted_data)
             
             print(f"\nFile '{filename}' downloaded for editing.")
-            print(f"It has been saved as '{temp_filename}'.")
-            print("Please edit this file with your preferred text editor.")
-            input("Press Enter when you have finished editing...")
+            print(f"It has been saved as '{temp_filepath}'.")
             
-            # Check if file exists and read it
-            if not os.path.exists(temp_filename):
+            # For certain file types, we can offer to open them automatically
+            file_ext = os.path.splitext(filename)[1].lower()
+            
+            # Automatically open the file if it's a common document type
+            if file_ext in ['.txt', '.md', '.csv', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.pdf']:
+                open_file = input(f"Would you like to open this {file_ext} file automatically? (y/n): ").lower() == 'y'
+                
+                if open_file:
+                    try:
+                        process = None
+                        # Open the file with the default application
+                        if platform.system() == 'Darwin':  # macOS
+                            process = subprocess.Popen(['open', temp_filepath])
+                            self.opened_processes.append(process.pid)
+                        elif platform.system() == 'Windows':
+                            # On Windows, os.startfile doesn't return a process ID
+                            # so we use a different approach
+                            os.startfile(temp_filepath)
+                        else:  # Linux and other
+                            process = subprocess.Popen(['xdg-open', temp_filepath])
+                            self.opened_processes.append(process.pid)
+                            
+                        print(f"File opened in the default {file_ext} editor.")
+                    except Exception as e:
+                        print(f"Failed to open file automatically: {e}")
+                        print(f"Please open and edit '{temp_filepath}' manually.")
+            else:
+                print(f"Please open and edit '{temp_filepath}' with your preferred text editor.")
+            
+            # Wait for user to finish editing
+            print("\nIMPORTANT: When you finish editing:")
+            print("1. Save your changes in the editor")
+            print("2. Return to this window and press Enter")
+            print("   (The system will attempt to close the editor for you)")
+            
+            input("\nPress Enter when you have finished editing...")
+            
+            # Attempt to close any applications that might have the file open
+            self._attempt_close_applications(temp_filepath)
+            
+            # Check if file exists
+            if not os.path.exists(temp_filepath):
                 print("Error: Temporary file not found after editing!")
                 return
             
             # Check if file size is still reasonable
-            if os.path.getsize(temp_filename) > 10 * 1024 * 1024:
+            if os.path.getsize(temp_filepath) > 10 * 1024 * 1024:
                 print("Error: Edited file is too large (max 10MB).")
                 return
             
-            with open(temp_filename, "rb") as f:
-                modified_data = f.read()
+            # Attempt to read the file with retries
+            modified_data = None
+            max_read_attempts = 3
+            
+            for attempt in range(max_read_attempts):
+                try:
+                    with open(temp_filepath, "rb") as f:
+                        modified_data = f.read()
+                    break  # Successfully read the file
+                except (IOError, PermissionError):
+                    if attempt < max_read_attempts - 1:
+                        print(f"File is still locked. Attempting to close any applications using it...")
+                        self._attempt_close_applications(temp_filepath)
+                        time.sleep(0.2)  # Short delay before retry
+                    else:
+                        print("\nCould not read the file after multiple attempts.")
+                        print("Please close any applications that might be using this file and try again.")
+                        return
             
             # Get the file's current visibility
             self.socket.send(f"GET_METADATA:{filename}".encode())
@@ -520,16 +587,111 @@ class Client:
             
             if update_response == "UPDATE_SUCCESS":
                 print(f"File '{filename}' updated successfully!")
-                # Clean up temporary file
-                try:
-                    os.remove(temp_filename)
-                except:
-                    print(f"Note: Could not remove temporary file '{temp_filename}'")
+                
+                # Clean up temporary file with fast retry mechanism
+                self._remove_temp_file(temp_filepath)
             else:
                 print(f"Error updating file: {update_response.split(':', 1)[1] if ':' in update_response else update_response}")
+                # Still try to clean up temp file even if update failed
+                self._remove_temp_file(temp_filepath)
         
         except Exception as e:
             print(f"Error during file editing: {e}")
+    
+    def _attempt_close_applications(self, filepath):
+        """Attempt to close any applications that might be using the file"""
+        # First, try to close apps we launched
+        for pid in self.opened_processes:
+            try:
+                if platform.system() == 'Windows':
+                    # On Windows, use taskkill
+                    subprocess.run(['taskkill', '/F', '/PID', str(pid)], 
+                                  stdout=subprocess.PIPE, 
+                                  stderr=subprocess.PIPE)
+                else:
+                    # On Unix-like systems, use kill
+                    os.kill(pid, signal.SIGTERM)
+                    time.sleep(0.1)  # Give a moment for process to terminate
+                    # If still running, try harder
+                    try:
+                        os.kill(pid, 0)  # Check if process exists
+                        os.kill(pid, signal.SIGKILL)
+                    except OSError:
+                        pass  # Process already terminated
+            except Exception:
+                pass
+                
+        # On Windows, try to close processes using the file
+        if platform.system() == 'Windows':
+            try:
+                # Try using taskkill to terminate processes that have the file open
+                # This is a more aggressive approach
+                file_dir, file_name = os.path.split(filepath)
+                subprocess.run(['taskkill', '/F', '/FI', f'WINDOWTITLE eq {file_name}*'], 
+                              stdout=subprocess.PIPE, 
+                              stderr=subprocess.PIPE)
+                
+                # Try also terminating common editor processes
+                for editor in ["WINWORD.EXE", "EXCEL.EXE", "POWERPNT.EXE", "WORDPAD.EXE", "notepad.exe"]:
+                    subprocess.run(['taskkill', '/F', '/IM', editor], 
+                                  stdout=subprocess.PIPE, 
+                                  stderr=subprocess.PIPE)
+            except Exception:
+                pass
+                
+        # On macOS, try to use osascript to quit applications
+        elif platform.system() == 'Darwin':
+            try:
+                for app in ["Microsoft Word", "Microsoft Excel", "Microsoft PowerPoint", "TextEdit"]:
+                    subprocess.run(['osascript', '-e', f'tell application "{app}" to quit'], 
+                                  stdout=subprocess.PIPE, 
+                                  stderr=subprocess.PIPE)
+            except Exception:
+                pass
+                
+        # On Linux, try using fuser to find and kill processes
+        elif platform.system() == 'Linux':
+            try:
+                # Find processes using the file
+                subprocess.run(['fuser', '-k', filepath], 
+                              stdout=subprocess.PIPE, 
+                              stderr=subprocess.PIPE)
+            except Exception:
+                pass
+            
+    def _remove_temp_file(self, temp_filepath, max_retries=3, retry_delay=0.2):
+        """Helper method to remove temporary files with fast retry logic"""
+        for attempt in range(max_retries):
+            try:
+                os.remove(temp_filepath)
+                print(f"Temporary file removed successfully.")
+                return True
+            except PermissionError:
+                if attempt < max_retries - 1:
+                    if attempt == 0:
+                        print(f"File is still in use. Attempting to force close applications...")
+                    self._attempt_close_applications(temp_filepath)
+                    time.sleep(retry_delay)
+                else:
+                    print(f"\nStill cannot remove the temporary file after closing applications.")
+                    
+                    # Try more aggressive methods on Windows
+                    if platform.system() == 'Windows':
+                        try:
+                            print("Attempting a forced delete...")
+                            os.system(f'attrib -R -S -H "{temp_filepath}"')
+                            os.remove(temp_filepath)
+                            print("Temporary file removed successfully with force method.")
+                            return True
+                        except Exception:
+                            print(f"Could not remove file. It will remain at: {temp_filepath}")
+                            return False
+                    else:
+                        print(f"Temporary file will remain at: {temp_filepath}")
+                        return False
+            except Exception as e:
+                print(f"Warning: Could not remove temporary file: {e}")
+                return False
     
     def manage_mfa(self):
         print("\n=== Multi-Factor Authentication Management ===")
