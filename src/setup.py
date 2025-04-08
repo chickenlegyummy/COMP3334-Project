@@ -7,6 +7,6 @@ setup(
     install_requires=[
         "cryptography>=3.4",
     ],
-    author="Your Name",
-    description="A secure file sharing system"
+    author="Bobby Li",
+    description="3334 Project"
 )

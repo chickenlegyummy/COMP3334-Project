@@ -246,9 +246,15 @@ class Server:
                 else:
                     print(f"Unknown command from {addr}: {command}")
                     client.send("ERROR:Unknown command".encode())
+            except UnicodeDecodeError as e:
+                print(f"Decode error from {addr}: {e}")
+                client.send(f"ERROR:Server error: {e}".encode())
+                # Reset buffer to avoid sending garbage
+                client.send(b"")
             except Exception as e:
                 print(f"Error handling client {addr}: {e}")
                 client.send(f"ERROR:Server error: {e}".encode())
+                client.send(b"")
         client.close()
         print(f"Closed connection with {addr}")
     
@@ -314,12 +320,18 @@ class Server:
                 client.send("ERROR:Permission denied".encode())
                 return
             
-            # Receive and store updated file
-            data = client.recv(size)
+            # Receive updated file data
+            data = b""
+            while len(data) < size:
+                chunk = client.recv(min(size - len(data), 4096))
+                if not chunk:
+                    raise Exception("Client disconnected during upload")
+                data += chunk
+            
+            # Store the updated file
             self.file_controller.store_file(filename, data)
             self.file_controller.store_key(filename, key)
             
-            # Keep same owner but update visibility if specified
             if visibility and visibility != metadata["visibility"]:
                 self.file_controller.edit_privilege(filename, visibility)
                 
@@ -331,6 +343,8 @@ class Server:
             client.send(f"ERROR:Invalid size: {e}".encode())
         except Exception as e:
             client.send(f"ERROR:Update failed: {str(e)}".encode())
+            # Ensure no leftover data corrupts the stream
+            client.send(b"")  # Reset buffer
     
     def handle_list(self, client, addr, current_user, current_role):
         if current_role == "guest":

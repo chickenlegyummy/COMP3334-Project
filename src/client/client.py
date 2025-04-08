@@ -95,7 +95,7 @@ class Client:
         
         # Get password with validation
         while True:
-            password = getpass.getpass("Create password: ")
+            password = getpass.getpass("Create password (at least 8 char long, must contain uppercase, lowercase, digit, and special characters): ")
             is_strong, message = SecurityUtils.is_password_strong(password)
             if not is_strong:
                 print(message)
@@ -174,7 +174,7 @@ class Client:
             if user_code == verification_code:
                 # Get and validate new password
                 while True:
-                    new_password = getpass.getpass("Enter new password: ")
+                    new_password = getpass.getpass("Enter new password (at least 8 char long, must contain uppercase, lowercase, digit, and special characters): ")
                     is_strong, message = SecurityUtils.is_password_strong(new_password)
                     if not is_strong:
                         print(message)
@@ -215,7 +215,7 @@ class Client:
         
         # Get and validate new password
         while True:
-            new_password = getpass.getpass("Enter new password: ")
+            new_password = getpass.getpass("Enter new password (at least 8 char long, must contain uppercase, lowercase, digit, and special characters): ")
             is_strong, message = SecurityUtils.is_password_strong(new_password)
             if not is_strong:
                 print(message)
@@ -428,19 +428,38 @@ class Client:
         # Show available files first
         self.handle_list()
         
-        # This function allows users to edit their own files
         filename = input("Enter filename to edit content: ").strip()
         if not filename:
             print("Filename cannot be empty.")
             return
         
-        # Don't sanitize the filename - this might remove spaces
-        # Just ensure basic validation without affecting the spaces
+        # Basic validation without removing spaces
         if not re.match(r'^[a-zA-Z0-9\s\.\-_]+$', filename):
-            print("Invalid filename. Please use only letters, numbers, spaces, and characters .-_")
+            print("Invalid filename. Use only letters, numbers, spaces, and .-_")
             return
         
-        # Download the file first
+        # Check user's privilege for this file before proceeding
+        self.socket.send("LIST".encode())
+        response = self.socket.recv(2048).decode()
+        if not response.startswith("FILES:"):
+            print(f"Error fetching file list: {response.split(':', 1)[1] if ':' in response else response}")
+            return
+        
+        files = response.split(":", 1)[1].strip()
+        privilege = None
+        for line in files.split("\n"):
+            if filename in line:
+                privilege = line.split("Your Privilege: ")[1].rstrip(")")
+                break
+        
+        if not privilege:
+            print(f"File '{filename}' not found in your accessible files.")
+            return
+        if privilege != "edit":
+            print(f"You don’t have permission to edit '{filename}'. (Your privilege: {privilege})")
+            return
+        
+        # Proceed with download and edit only if user has edit privilege
         self.socket.send(f"DOWNLOAD:{filename}".encode())
         response = self.socket.recv(1024).decode()
         
@@ -449,11 +468,8 @@ class Client:
             return
         
         size = int(response.split(":", 1)[1])
-        
-        # Check if file size is reasonable
-        if size > 10 * 1024 * 1024:  # 10MB for editing
-            print("File is too large for editing. Please use a smaller file.")
-            # Cancel download
+        if size > 10 * 1024 * 1024:  # 10MB limit
+            print("File is too large for editing (max 10MB).")
             self.socket.send("CANCEL_DOWNLOAD".encode())
             return
         
@@ -472,131 +488,92 @@ class Client:
         
         key = key_response.split(":", 1)[1].encode()
         
-        # Decrypt the file
         try:
-            # Clear any existing tracked processes
             self.opened_processes = []
-            
             decrypted_data = self.crypto.decrypt(encrypted_data, key)
-            
-            # Create a clean filename for the temp file
             safe_filename = filename.replace(" ", "_")
-            
-            # Save to a temporary file for editing
             temp_dir = "temp_edits"
             os.makedirs(temp_dir, exist_ok=True)
-            temp_filename = f"{temp_dir}/temp_{safe_filename}"
+            temp_filepath = os.path.abspath(f"{temp_dir}/temp_{safe_filename}")
             
-            # Get the full path to the temporary file
-            temp_filepath = os.path.abspath(temp_filename)
-            
-            # Make sure we close the file handle after writing
             with open(temp_filepath, "wb") as f:
                 f.write(decrypted_data)
             
             print(f"\nFile '{filename}' downloaded for editing.")
-            print(f"It has been saved as '{temp_filepath}'.")
+            print(f"Saved as '{temp_filepath}'.")
             
-            # For certain file types, we can offer to open them automatically
             file_ext = os.path.splitext(filename)[1].lower()
-            
-            # Automatically open the file if it's a common document type
             if file_ext in ['.txt', '.md', '.csv', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.pdf']:
-                open_file = input(f"Would you like to open this {file_ext} file automatically? (y/n): ").lower() == 'y'
-                
+                open_file = input(f"Open this {file_ext} file automatically? (y/n): ").lower() == 'y'
                 if open_file:
                     try:
                         process = None
-                        # Open the file with the default application
-                        if platform.system() == 'Darwin':  # macOS
+                        if platform.system() == 'Darwin':
                             process = subprocess.Popen(['open', temp_filepath])
                             self.opened_processes.append(process.pid)
                         elif platform.system() == 'Windows':
-                            # On Windows, os.startfile doesn't return a process ID
-                            # so we use a different approach
                             os.startfile(temp_filepath)
-                        else:  # Linux and other
+                        else:
                             process = subprocess.Popen(['xdg-open', temp_filepath])
                             self.opened_processes.append(process.pid)
-                            
-                        print(f"File opened in the default {file_ext} editor.")
+                        print(f"File opened in default {file_ext} editor.")
                     except Exception as e:
-                        print(f"Failed to open file automatically: {e}")
-                        print(f"Please open and edit '{temp_filepath}' manually.")
+                        print(f"Failed to open file: {e}")
+                        print(f"Open '{temp_filepath}' manually.")
             else:
-                print(f"Please open and edit '{temp_filepath}' with your preferred text editor.")
+                print(f"Open '{temp_filepath}' with your preferred editor.")
             
-            # Wait for user to finish editing
-            print("\nIMPORTANT: When you finish editing:")
-            print("1. Save your changes in the editor")
-            print("2. Return to this window and press Enter")
-            print("   (The system will attempt to close the editor for you)")
+            print("\nIMPORTANT: When done:")
+            print("1. Save changes in the editor")
+            print("2. Press Enter here to upload")
+            input("\nPress Enter when finished editing...")
             
-            input("\nPress Enter when you have finished editing...")
-            
-            # Attempt to close any applications that might have the file open
             self._attempt_close_applications(temp_filepath)
             
-            # Check if file exists
             if not os.path.exists(temp_filepath):
-                print("Error: Temporary file not found after editing!")
+                print("Error: Temp file not found after editing!")
                 return
             
-            # Check if file size is still reasonable
             if os.path.getsize(temp_filepath) > 10 * 1024 * 1024:
-                print("Error: Edited file is too large (max 10MB).")
+                print("Error: Edited file too large (max 10MB).")
                 return
             
-            # Attempt to read the file with retries
-            modified_data = None
-            max_read_attempts = 3
-            
-            for attempt in range(max_read_attempts):
+            max_attempts = 3
+            for attempt in range(max_attempts):
                 try:
                     with open(temp_filepath, "rb") as f:
                         modified_data = f.read()
-                    break  # Successfully read the file
+                    break
                 except (IOError, PermissionError):
-                    if attempt < max_read_attempts - 1:
-                        print(f"File is still locked. Attempting to close any applications using it...")
+                    if attempt < max_attempts - 1:
+                        print("File locked. Trying to close apps...")
                         self._attempt_close_applications(temp_filepath)
-                        time.sleep(0.2)  # Short delay before retry
+                        time.sleep(0.2)
                     else:
-                        print("\nCould not read the file after multiple attempts.")
-                        print("Please close any applications that might be using this file and try again.")
+                        print("Could not read file after retries.")
                         return
             
-            # Get the file's current visibility
             self.socket.send(f"GET_METADATA:{filename}".encode())
             metadata_response = self.socket.recv(1024).decode()
-            
             if not metadata_response.startswith("METADATA:"):
-                print(f"Error getting file metadata: {metadata_response}")
+                print(f"Error getting metadata: {metadata_response}")
                 return
-            
             visibility = metadata_response.split(":")[1]
             
-            # Encrypt and upload the modified file
             encrypted_modified_data, new_key = self.crypto.encrypt(modified_data)
-            
-            # Send the UPDATE command
             self.socket.send(f"UPDATE:{filename}:{len(encrypted_modified_data)}:{new_key.decode()}:{visibility}".encode())
             self.socket.send(encrypted_modified_data)
             
             update_response = self.socket.recv(1024).decode()
-            
             if update_response == "UPDATE_SUCCESS":
                 print(f"File '{filename}' updated successfully!")
-                
-                # Clean up temporary file with fast retry mechanism
                 self._remove_temp_file(temp_filepath)
             else:
                 print(f"Error updating file: {update_response.split(':', 1)[1] if ':' in update_response else update_response}")
-                # Still try to clean up temp file even if update failed
                 self._remove_temp_file(temp_filepath)
         
         except Exception as e:
-            print(f"Error during file editing: {e}")
+            print(f"Error during editing: {e}")
     
     def _attempt_close_applications(self, filepath):
         """Attempt to close any applications that might be using the file"""
@@ -699,50 +676,53 @@ class Client:
         print("2. Disable MFA")
         print("3. Back to main menu")
         
-        choice = input("Enter your choice (1-3): ")
+        choice = input("Enter your choice (1-3): ").strip()
         
         if choice == "1":
             self.socket.send(f"ENABLE_MFA:{self.current_user}".encode())
             response = self.socket.recv(1024).decode()
             
             if response.startswith("MFA_ENABLED:"):
-                mfa_secret = response.split(":")[1]
-                # Use our custom TOTP implementation
+                mfa_secret = response.split(":", 1)[1]  # Use split with maxsplit=1 to handle colons in secret
                 totp = TOTP(secret=mfa_secret)
-                print("\nMFA has been enabled!")
-                print(f"Your MFA secret: {mfa_secret}")
-                print("Please save this secret or scan the QR code in your authenticator app")
+                print("\nMFA has been enabled (or updated) for your account!")
+                print("Use this new secret to set up your authenticator app:")
+                print(f"New MFA Secret: {mfa_secret}")
                 print(f"QR Code URL: {totp.provisioning_uri(self.current_user)}")
+                print("Open this URL in a QR code scanner or enter the secret manually in your app (e.g., Google Authenticator).")
                 
                 # Verify setup
-                verification_code = input("\nEnter the code from your authenticator app to verify setup: ")
-                
-                if totp.verify(verification_code):
-                    print("MFA setup verified successfully!")
-                else:
-                    print("Warning: MFA verification failed, but MFA is still enabled.")
-                    print("If you have trouble logging in, contact an administrator.")
+                while True:
+                    verification_code = input("\nEnter the 6-digit code from your authenticator app to verify: ")
+                    if not re.match(r'^\d{6}$', verification_code):
+                        print("Invalid format. Enter a 6-digit code.")
+                        continue
+                    if totp.verify(verification_code):
+                        print("MFA setup verified successfully! You’ll need this code for future logins.")
+                        break
+                    else:
+                        print("Invalid code. Try again or ensure your app is set up with the new secret.")
             else:
                 print(f"Failed to enable MFA: {response.split(':', 1)[1] if ':' in response else response}")
         
         elif choice == "2":
-            confirm = input("Are you sure you want to disable MFA? This will reduce account security. (y/n): ")
-            if confirm.lower() == 'y':
+            confirm = input("Are you sure you want to disable MFA? This will reduce account security. (y/n): ").lower()
+            if confirm == 'y':
                 self.socket.send(f"DISABLE_MFA:{self.current_user}".encode())
                 response = self.socket.recv(1024).decode()
                 
                 if response == "MFA_DISABLED":
-                    print("MFA has been disabled.")
+                    print("MFA has been disabled. You won’t need a code to log in.")
                 else:
                     print(f"Failed to disable MFA: {response.split(':', 1)[1] if ':' in response else response}")
             else:
-                print("MFA disable operation cancelled.")
+                print("MFA disable cancelled.")
         
         elif choice == "3":
             return
         
         else:
-            print("Invalid choice.")
+            print("Invalid choice. Please enter 1, 2, or 3.")
 
 if __name__ == "__main__":
     SERVER_HOST = "localhost"  # Replace with your server's public IP or domain

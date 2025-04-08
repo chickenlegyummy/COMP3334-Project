@@ -28,7 +28,7 @@ python -m src.server.server
 - Admin: username "admin", password "adminpassword"
 - Normal: username "test", password "password"
 - Normal: username "test2", password "test2pass"
-- Guest: username "guest", password "guestpass"
+- Normal: username "test3" and "test4", password "Test123."
 
 ---
 

@@ -325,3 +325,124 @@
 2025-04-07 23:07:11,745 - User: 127.0.0.1, Action: listed files
 2025-04-07 23:07:17,956 - User: 127.0.0.1, Action: downloaded test space.txt
 2025-04-07 23:10:28,361 - User: test5, Action: logout
+2025-04-08 14:14:00,213 - User: test5, Action: login
+2025-04-08 14:15:48,651 - User: test4, Action: login with MFA
+2025-04-08 14:17:48,278 - User: 127.0.0.1, Action: uploaded HKU SPACE Community college.docx (private)
+2025-04-08 14:17:51,842 - User: 127.0.0.1, Action: listed files
+2025-04-08 14:17:57,645 - User: 127.0.0.1, Action: listed files
+2025-04-08 14:18:18,893 - User: 127.0.0.1, Action: listed files
+2025-04-08 14:18:32,933 - User: 127.0.0.1, Action: edited HKU SPACE Community college.docx privileges
+2025-04-08 14:18:37,147 - User: 127.0.0.1, Action: listed files
+2025-04-08 14:18:41,899 - User: 127.0.0.1, Action: listed files
+2025-04-08 14:22:54,513 - User: 127.0.0.1, Action: listed files
+2025-04-08 14:23:24,839 - User: 127.0.0.1, Action: listed files
+2025-04-08 14:23:40,912 - User: 127.0.0.1, Action: edited HKU SPACE Community college.docx privileges
+2025-04-08 14:23:46,726 - User: 127.0.0.1, Action: listed files
+2025-04-08 14:24:35,955 - User: 127.0.0.1, Action: listed files
+2025-04-08 14:25:02,008 - User: 127.0.0.1, Action: edited HKU SPACE Community college.docx privileges
+2025-04-08 14:25:06,058 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:03:54,076 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:04:03,537 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:04:28,770 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:04:43,289 - User: 127.0.0.1, Action: edited HKU SPACE Community college.docx privileges
+2025-04-08 15:04:45,115 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:04:50,952 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:05:02,830 - User: 127.0.0.1, Action: downloaded HKU SPACE Community college.docx
+2025-04-08 15:05:31,416 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:05:35,044 - User: 127.0.0.1, Action: downloaded HKU SPACE Community college.docx
+2025-04-08 15:08:38,221 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:09:04,153 - User: 127.0.0.1, Action: downloaded HKU SPACE Community college.docx
+2025-04-08 15:09:15,664 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:09:50,741 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:09:56,149 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:10:08,409 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:10:11,253 - User: 127.0.0.1, Action: downloaded HKU SPACE Community college.docx
+2025-04-08 15:10:50,042 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:10:53,063 - User: 127.0.0.1, Action: downloaded HKU SPACE Community college.docx
+2025-04-08 15:11:09,844 - User: 127.0.0.1, Action: updated HKU SPACE Community college.docx
+2025-04-08 15:11:20,520 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:11:22,591 - User: 127.0.0.1, Action: downloaded HKU SPACE Community college.docx
+2025-04-08 15:12:18,221 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:12:19,867 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:12:48,559 - User: test4, Action: logout
+2025-04-08 15:13:27,551 - User: test4, Action: login with MFA
+2025-04-08 15:13:31,990 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:13:57,771 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:14:00,281 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:14:06,750 - User: 127.0.0.1, Action: downloaded HKU SPACE Community college.docx
+2025-04-08 15:14:24,302 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:14:36,727 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:14:40,727 - User: 127.0.0.1, Action: downloaded HKU SPACE Community college.docx
+2025-04-08 15:14:48,305 - User: 127.0.0.1, Action: updated HKU SPACE Community college.docx
+2025-04-08 15:14:52,049 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:16:08,931 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:16:17,241 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:16:25,405 - User: 127.0.0.1, Action: downloaded HKU SPACE Community college.docx
+2025-04-08 15:16:35,493 - User: test4, Action: logout
+2025-04-08 15:30:08,873 - User: test5, Action: logout
+2025-04-08 15:32:19,154 - User: test5, Action: login
+2025-04-08 15:32:29,574 - User: test4, Action: login
+2025-04-08 15:36:00,031 - User: test4, Action: logout
+2025-04-08 15:36:16,172 - User: test4, Action: login with MFA
+2025-04-08 15:36:23,550 - User: test4, Action: logout
+2025-04-08 15:36:54,323 - User: test4, Action: login with MFA
+2025-04-08 15:37:11,904 - User: test4, Action: logout
+2025-04-08 15:37:19,671 - User: test4, Action: login
+2025-04-08 15:40:43,770 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:40:45,142 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:41:50,977 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:41:54,759 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:42:04,309 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:42:07,145 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:42:07,160 - User: 127.0.0.1, Action: downloaded HKU SPACE Community college.docx
+2025-04-08 15:42:20,287 - User: 127.0.0.1, Action: updated HKU SPACE Community college.docx
+2025-04-08 15:42:29,368 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:42:34,848 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:42:34,887 - User: 127.0.0.1, Action: downloaded HKU SPACE Community college.docx
+2025-04-08 15:42:50,369 - User: 127.0.0.1, Action: updated HKU SPACE Community college.docx
+2025-04-08 15:42:58,198 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:43:00,574 - User: 127.0.0.1, Action: downloaded HKU SPACE Community college.docx
+2025-04-08 15:43:16,723 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:43:22,125 - User: 127.0.0.1, Action: edited HKU SPACE Community college.docx privileges
+2025-04-08 15:43:26,434 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:43:28,158 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:43:33,656 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:43:40,016 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:43:41,072 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:43:51,992 - User: 127.0.0.1, Action: edited HKU SPACE Community college.docx privileges
+2025-04-08 15:44:01,651 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:44:03,439 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:44:11,255 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:44:23,447 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:44:28,738 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:44:54,104 - User: 127.0.0.1, Action: edited HKU SPACE Community college.docx privileges
+2025-04-08 15:44:58,198 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:45:34,319 - User: 127.0.0.1, Action: edited HKU SPACE Community college.docx privileges
+2025-04-08 15:45:40,886 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:45:57,270 - User: 127.0.0.1, Action: edited HKU SPACE Community college.docx privileges
+2025-04-08 15:46:08,611 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:46:24,790 - User: 127.0.0.1, Action: edited HKU SPACE Community college.docx privileges
+2025-04-08 15:46:27,585 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:46:55,166 - User: 127.0.0.1, Action: edited HKU SPACE Community college.docx privileges
+2025-04-08 15:46:59,776 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:47:10,553 - User: 127.0.0.1, Action: edited HKU SPACE Community college.docx privileges
+2025-04-08 15:47:26,426 - User: test4, Action: logout
+2025-04-08 15:47:27,110 - User: test5, Action: logout
+2025-04-08 15:53:02,863 - User: kelvinli, Action: login
+2025-04-08 15:53:33,984 - User: kelvinli, Action: logout
+2025-04-08 15:53:43,237 - User: kelvinli, Action: login
+2025-04-08 15:53:53,987 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:53:54,300 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:54:04,244 - User: kelvinli, Action: logout
+2025-04-08 15:54:22,326 - User: test5, Action: login
+2025-04-08 15:54:28,947 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:54:30,929 - User: 127.0.0.1, Action: listed files
+2025-04-08 15:54:36,238 - User: 127.0.0.1, Action: deleted HKU SPACE Community college.docx
+2025-04-08 15:54:43,067 - User: test5, Action: logout
+2025-04-08 15:56:45,446 - User: test5, Action: login
+2025-04-08 15:57:05,787 - User: test5, Action: logout
+2025-04-08 16:02:23,272 - User: test5, Action: login
+2025-04-08 16:02:27,465 - User: test5, Action: logout
+2025-04-08 16:04:25,009 - User: test3, Action: login
+2025-04-08 16:04:30,357 - User: 127.0.0.1, Action: listed files
+2025-04-08 16:04:38,249 - User: test3, Action: logout

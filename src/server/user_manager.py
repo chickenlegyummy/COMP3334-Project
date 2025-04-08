@@ -423,7 +423,7 @@ class UserManager:
     
     def enable_mfa(self, username):
         """
-        Enable MFA for a user
+        Enable MFA for a user, always generating a new secret
         
         Args:
             username (str): Username to enable MFA for
@@ -435,7 +435,7 @@ class UserManager:
         if not re.match(r'^[\w@\.\+\-]{3,30}$', username):
             return False, "Invalid username format"
         
-        # Use our custom TOTP implementation
+        # Always generate a new TOTP secret, even if MFA was previously enabled
         totp = TOTP()
         mfa_secret = totp.secret
         
