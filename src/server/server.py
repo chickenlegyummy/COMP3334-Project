@@ -51,19 +51,14 @@ class Server:
         
         while self.running:
             try:
-                raw_message = client.recv(1024)
-                if not raw_message:
+                message = client.recv(1024).decode()
+                if not message:
                     print(f"Client {addr} disconnected")
                     break
                 
-                try:
-                    message = raw_message.decode('utf-8')
-                    print(f"Received from {addr}: {message}")
-                    command, args = Protocol.parse_message(message)
-                    print(f"Parsed command: {command}, args: {args}")
-                except UnicodeDecodeError:
-                    print(f"Received non-text data from {addr}, skipping")
-                    continue
+                print(f"Received from {addr}: {message}")
+                command, args = Protocol.parse_message(message)
+                print(f"Parsed command: {command}, args: {args}")
                 
                 if command == "AUTH":
                     username, password = args
@@ -172,7 +167,7 @@ class Server:
                     username, new_password = args
                     password_valid, _ = self.user_manager.verify_current_password(username, new_password)
                     if password_valid:
-                        client.send("ERROR:New password cannot be the same as the old password".encode())
+                        client.send("RESET_FAILED:New password cannot be the same as the old password".encode())
                         continue
                     success, message = self.user_manager.update_password(username, new_password)
                     if success:
@@ -196,6 +191,7 @@ class Server:
                     if not password_valid:
                         client.send("ERROR:Current password is incorrect".encode())
                         continue
+                    # Check if new password matches current password
                     new_password_same, _ = self.user_manager.verify_current_password(username, new_password)
                     if new_password_same:
                         client.send("ERROR:New password cannot be the same as the current password".encode())
@@ -244,11 +240,6 @@ class Server:
                 
                 elif command == "UPLOAD":
                     self.handle_upload(client, args, addr, current_user, current_role)
-                elif command == "CONFIRM":
-                    if len(args) != 1 or args[0] not in ["yes", "no"]:
-                        client.send("ERROR:Invalid confirmation response".encode())
-                        continue
-                    # Handled within handle_upload
                 elif command == "DOWNLOAD":
                     self.handle_download(client, args, addr, current_user, current_role)
                 elif command == "LIST":
@@ -266,9 +257,14 @@ class Server:
                 else:
                     print(f"Unknown command from {addr}: {command}")
                     client.send("ERROR:Unknown command".encode())
+            except UnicodeDecodeError as e:
+                print(f"Decode error from {addr}: {e}")
+                client.send(f"ERROR:Server error: {e}".encode())
+                client.send(b"")
             except Exception as e:
                 print(f"Error handling client {addr}: {e}")
                 client.send(f"ERROR:Server error: {e}".encode())
+                client.send(b"")
         client.close()
         print(f"Closed connection with {addr}")
     
@@ -282,40 +278,6 @@ class Server:
             if visibility not in ["private", "public", "unlisted"]:
                 client.send("ERROR:Invalid visibility (private/public/unlisted)".encode())
                 return
-            
-            # Check if file already exists
-            existing_metadata = self.file_controller.get_metadata(filename)
-            if existing_metadata:
-                if current_role == "admin" or existing_metadata["owner"] == current_user:
-                    client.send(f"CONFIRM_OVERWRITE:File '{filename}' already exists. Overwrite? (yes/no)".encode())
-                    print(f"Prompting {current_user} to confirm overwrite of '{filename}'")
-                    
-                    response = client.recv(1024).decode()
-                    response_command, response_args = Protocol.parse_message(response)
-                    if response_command == "CONFIRM" and response_args[0] == "yes":
-                        print(f"User {current_user} confirmed overwrite of '{filename}'")
-                    elif response_command == "CONFIRM" and response_args[0] == "no":
-                        client.send("UPLOAD_CANCELLED:Upload cancelled by user".encode())
-                        print(f"User {current_user} declined to overwrite '{filename}'")
-                        # Clear any residual data with timeout
-                        client.settimeout(0.1)
-                        while True:
-                            try:
-                                client.recv(1024)
-                            except socket.timeout:
-                                break
-                        client.settimeout(None)
-                        return
-                    else:
-                        client.send("ERROR:Invalid confirmation response".encode())
-                        print(f"Invalid confirmation response from {current_user}")
-                        return
-                else:
-                    client.send("ERROR:File already exists with this name. Please use a different filename.".encode())
-                    print(f"Upload rejected: {current_user} tried to overwrite '{filename}' owned by {existing_metadata['owner']}")
-                    return
-            
-            # Proceed with upload (new file or confirmed overwrite)
             data = client.recv(size)
             self.file_controller.store_file(filename, data)
             self.file_controller.store_key(filename, key)
@@ -323,10 +285,8 @@ class Server:
             self.logger.log_action(addr[0], f"uploaded {filename} ({visibility})")
             self.user_manager.log_audit(current_user, f"uploaded file {filename}", addr[0])
             client.send("UPLOAD_SUCCESS".encode())
-            print(f"File '{filename}' uploaded successfully by {current_user}")
         except ValueError as e:
             client.send(f"ERROR:Invalid size: {e}".encode())
-            print(f"ValueError in handle_upload: {e}")
     
     def handle_download(self, client, args, addr, current_user, current_role):
         filename = args[0]
@@ -382,23 +342,20 @@ class Server:
             client.send(f"ERROR:Invalid size: {e}".encode())
         except Exception as e:
             client.send(f"ERROR:Update failed: {str(e)}".encode())
+            client.send(b"")
     
     def handle_list(self, client, addr, current_user, current_role):
         if current_role == "guest":
             client.send("ERROR:Guests cannot list files".encode())
             return
-        try:
-            files = self.file_controller.list_files(current_user, current_role)
-            if files:
-                file_list = "\n".join([f"{f['filename']} (Owner: {f['owner']}, Your Privilege: {f['privilege']})" for f in files])
-                client.send(f"FILES:{file_list}".encode())
-            else:
-                client.send("FILES:No files visible".encode())
-            self.logger.log_action(addr[0], "listed files")
-            self.user_manager.log_audit(current_user, "listed files", addr[0])
-        except Exception as e:
-            print(f"Error in handle_list: {e}")
-            client.send(f"ERROR:Failed to list files: {str(e)}".encode())
+        files = self.file_controller.list_files(current_user, current_role)
+        if files:
+            file_list = "\n".join([f"{f['filename']} (Owner: {f['owner']}, Your Privilege: {f['privilege']})" for f in files])
+            client.send(f"FILES:{file_list}".encode())
+        else:
+            client.send("FILES:No files visible".encode())
+        self.logger.log_action(addr[0], "listed files")
+        self.user_manager.log_audit(current_user, "listed files", addr[0])
     
     def handle_delete(self, client, args, addr, current_user, current_role):
         if current_role == "guest":
