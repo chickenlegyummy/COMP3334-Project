@@ -7,6 +7,6 @@ setup(
     install_requires=[
         "cryptography>=3.4",
     ],
-    author="Bobby Li",
-    description="3334 Project"
+    author="Team 06",
+    description="COMP3334 Project"
 )
