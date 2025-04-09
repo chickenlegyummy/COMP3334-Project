@@ -20,7 +20,6 @@ class Client:
             self.file_manager = FileManager(self.socket)
             self.crypto = Crypto()
             self.current_user = None
-            # Track launched processes for cleanup
             self.opened_processes = []
         except socket.error as e:
             print(f"Failed to connect to server {host}:{port}: {e}")
@@ -69,73 +68,99 @@ class Client:
     
     def login(self):
         try:
-            if authenticate(self.socket):
-                print("Authentication successful!")
-                self.current_user = input("Enter your username again to confirm: ")
-                # Validate username to prevent injection
-                if not re.match(r'^[\w@\.\+\-]{3,30}$', self.current_user):
-                    print("Invalid username format.")
-                    self.current_user = None
+            username = input("Username: ")
+            if not re.match(r'^[\w@\.\+\-]{3,30}$', username):
+                print("Invalid username format.")
+                return False
+            password = getpass.getpass("Password: ")
+            credentials = f"AUTH:{username}:{password}"
+            self.socket.send(credentials.encode())
+            response = self.socket.recv(1024).decode()
+            
+            if response.startswith("MFA_REQUIRED:"):
+                session_id = response.split(":")[1]
+                while True:
+                    code = input("Enter the verification code from your authenticator app: ")
+                    if re.match(r'^\d{6}$', code):
+                        break
+                    print("Invalid code format. Please enter a 6-digit code.")
+                self.socket.send(f"MFA_VERIFY:{session_id}:{code}".encode())
+                mfa_response = self.socket.recv(1024).decode()
+                if mfa_response == "AUTH_SUCCESS":
+                    print("Authentication successful!")
+                    self.current_user = username
+                    return True
+                else:
+                    print("MFA verification failed!")
                     return False
-                return True
+            
+            elif response.startswith("AUTH_CODE:"):
+                auth_code = response.split(":")[1]
+                print(f"Verification code received: {auth_code} (for demo purposes)")
+                while True:
+                    user_code = input("Enter the 6-digit verification code: ")
+                    if re.match(r'^\d{6}$', user_code):
+                        break
+                    print("Invalid code format. Please enter a 6-digit code.")
+                verify_cmd = f"VERIFY_AUTH_CODE:{username}:{user_code}"
+                self.socket.send(verify_cmd.encode())
+                verify_response = self.socket.recv(1024).decode()
+                if verify_response == "AUTH_SUCCESS":
+                    print("Authentication successful!")
+                    self.current_user = username
+                    return True
+                else:
+                    print(f"Authentication failed: {verify_response.split(':', 1)[1] if ':' in verify_response else verify_response}")
+                    return False
+            
             else:
-                print("Authentication failed!")
+                print(f"Authentication failed: {response}")
                 return False
         except Exception as e:
             print(f"Login error: {e}")
             return False
     
+    # Rest of the methods remain unchanged for brevity
     def register(self):
-        # Get username with validation
         while True:
             username = input("Create username (3-30 characters, alphanumeric and @.+-_): ")
             if re.match(r'^[\w@\.\+\-]{3,30}$', username):
                 break
             print("Invalid username format. Please use letters, numbers, and the characters @.+-_")
         
-        # Get password with validation
         while True:
             password = getpass.getpass("Create password (at least 8 char long, must contain uppercase, lowercase, digit, and special characters): ")
             is_strong, message = SecurityUtils.is_password_strong(password)
             if not is_strong:
                 print(message)
                 continue
-                
             confirm_password = getpass.getpass("Confirm password: ")
             if password != confirm_password:
                 print("Passwords do not match!")
                 continue
             break
         
-        # Get email with validation
         while True:
             email = input("Enter your email for account recovery: ")
             if re.match(r'^[^@]+@[^@]+\.[^@]+$', email):
                 break
             print("Invalid email format. Please enter a valid email address.")
         
-        # Ask if user wants to set up MFA
         setup_mfa = input("Do you want to set up Multi-Factor Authentication (y/n)? ").lower() == 'y'
         mfa_secret = None
         
         if setup_mfa:
-            # Use our custom TOTP implementation
             totp = TOTP()
             mfa_secret = totp.secret
             print("\nMFA Setup")
             print(f"Your MFA secret: {mfa_secret}")
             print("Please save this secret or scan the QR code in your authenticator app (Google Authenticator, Authy, etc.)")
             print(f"QR Code URL: {totp.provisioning_uri(username)}")
-            
-            # Verify the user has set up MFA
-            print("\nVerify your MFA setup:")
             verification_code = input("Enter the code from your authenticator app: ")
-            
             if not totp.verify(verification_code):
                 print("Invalid verification code. MFA setup failed. Please try again.")
                 return
         
-        # Send registration request
         if mfa_secret:
             self.socket.send(f"REGISTER:{username}:{password}:{email}:{mfa_secret}".encode())
         else:
@@ -148,14 +173,12 @@ class Client:
             print(f"Registration failed: {response.split(':', 1)[1] if ':' in response else response}")
     
     def reset_password(self):
-        # Get username with validation
         while True:
             username = input("Enter your username: ")
             if re.match(r'^[\w@\.\+\-]{3,30}$', username):
                 break
             print("Invalid username format.")
         
-        # Get email with validation
         while True:
             email = input("Enter your registered email: ")
             if re.match(r'^[^@]+@[^@]+\.[^@]+$', email):
@@ -172,14 +195,12 @@ class Client:
             user_code = input("Enter the verification code: ")
             
             if user_code == verification_code:
-                # Get and validate new password
                 while True:
                     new_password = getpass.getpass("Enter new password (at least 8 char long, must contain uppercase, lowercase, digit, and special characters): ")
                     is_strong, message = SecurityUtils.is_password_strong(new_password)
                     if not is_strong:
                         print(message)
                         continue
-                        
                     confirm_password = getpass.getpass("Confirm new password: ")
                     if new_password != confirm_password:
                         print("Passwords do not match!")
@@ -202,25 +223,20 @@ class Client:
         if self.current_user:
             self.socket.send(f"LOGOUT:{self.current_user}".encode())
             response = self.socket.recv(1024).decode()
-            
             if response == "LOGOUT_SUCCESS":
                 print("Logged out successfully!")
             else:
                 print(f"Logout error: {response.split(':', 1)[1] if ':' in response else response}")
-            
             self.current_user = None
     
     def change_password(self):
         current_password = getpass.getpass("Enter current password: ")
-        
-        # Get and validate new password
         while True:
             new_password = getpass.getpass("Enter new password (at least 8 char long, must contain uppercase, lowercase, digit, and special characters): ")
             is_strong, message = SecurityUtils.is_password_strong(new_password)
             if not is_strong:
                 print(message)
                 continue
-                
             confirm_password = getpass.getpass("Confirm new password: ")
             if new_password != confirm_password:
                 print("Passwords do not match!")
@@ -229,7 +245,6 @@ class Client:
         
         self.socket.send(f"CHANGE_PASSWORD:{self.current_user}:{current_password}:{new_password}".encode())
         response = self.socket.recv(1024).decode()
-        
         if response == "PASSWORD_UPDATED":
             print("Password changed successfully!")
         else:
@@ -278,7 +293,6 @@ class Client:
                     return
                 else:
                     print("Invalid choice. Please enter a number between 0-9.")
-            
             except socket.error as e:
                 print(f"Network error: {e}. Check your connection or server status.")
                 break
@@ -294,31 +308,22 @@ class Client:
         if not filepath:
             print("File path cannot be empty.")
             return
-            
-        # Validate visibility
         while True:
             visibility = input("Set visibility (private/public/unlisted): ").lower().strip()
             if visibility in ["private", "public", "unlisted"]:
                 break
             print("Invalid visibility. Use: private, public, or unlisted.")
-            
         self.file_manager.upload_file(filepath, self.crypto, visibility)
     
     def handle_download(self):
-        # Show available files first
         self.handle_list()
-        
         filename = input("Enter filename to download: ").strip()
         if not filename:
             print("Filename cannot be empty.")
             return
-        
-        # Don't sanitize the filename - this might remove spaces
-        # Just ensure basic validation without affecting the spaces
         if not re.match(r'^[a-zA-Z0-9\s\.\-_]+$', filename):
             print("Invalid filename. Please use only letters, numbers, spaces, and characters .-_")
             return
-            
         self.file_manager.download_file(filename, self.crypto)
     
     def handle_list(self):
@@ -334,20 +339,14 @@ class Client:
             print("Error listing files: " + response.split(":", 1)[1] if ":" in response else response)
     
     def handle_delete(self):
-        # Show available files first
         self.handle_list()
-        
         filename = input("Enter filename to delete: ").strip()
         if not filename:
             print("Filename cannot be empty.")
             return
-        
-        # Don't sanitize the filename - this might remove spaces
-        # Just ensure basic validation without affecting the spaces
         if not re.match(r'^[a-zA-Z0-9\s\.\-_]+$', filename):
             print("Invalid filename. Please use only letters, numbers, spaces, and characters .-_")
             return
-            
         self.socket.send(f"DELETE:{filename}".encode())
         response = self.socket.recv(1024).decode()
         if response == "DELETE_SUCCESS":
@@ -356,16 +355,11 @@ class Client:
             print(f"Error deleting file: {response.split(':', 1)[1] if ':' in response else response}")
     
     def handle_edit_permissions(self):
-        # Show available files first
         self.handle_list()
-        
         filename = input("Enter filename to edit permissions: ").strip()
         if not filename:
             print("Filename cannot be empty.")
             return
-        
-        # Don't sanitize the filename - this might remove spaces
-        # Just ensure basic validation without affecting the spaces
         if not re.match(r'^[a-zA-Z0-9\s\.\-_]+$', filename):
             print("Invalid filename. Please use only letters, numbers, spaces, and characters .-_")
             return
@@ -379,7 +373,6 @@ class Client:
         if visibility in ["private", "public"]:
             cmd += f":{visibility}::"
         else:
-            # Fetch and display current allowed users
             self.socket.send(f"GET_ALLOWED:{filename}".encode())
             response = self.socket.recv(1024).decode()
             if response.startswith("ALLOWED:"):
@@ -388,11 +381,8 @@ class Client:
             else:
                 print(f"Error fetching allowed users: {response.split(':', 1)[1] if ':' in response else response}")
                 return
-                
             add_users_input = input("Users to add (comma-separated, or leave blank): ").strip()
             remove_users_input = input("Users to remove (comma-separated, or leave blank): ").strip()
-            
-            # Validate and sanitize usernames
             add_users = []
             for user in add_users_input.split(","):
                 user = user.strip()
@@ -400,7 +390,6 @@ class Client:
                     add_users.append(user)
                 elif user:
                     print(f"Warning: Skipping invalid username '{user}'")
-                    
             remove_users = []
             for user in remove_users_input.split(","):
                 user = user.strip()
@@ -408,11 +397,8 @@ class Client:
                     remove_users.append(user)
                 elif user:
                     print(f"Warning: Skipping invalid username '{user}'")
-            
-            # Join validated usernames
             add_users_str = ",".join(add_users) if add_users else ""
             remove_users_str = ",".join(remove_users) if remove_users else ""
-            
             cmd += f":{visibility}" if visibility else ":"
             cmd += f":{add_users_str}" if add_users_str else ":"
             cmd += f":{remove_users_str}" if remove_users_str else ":"
@@ -425,20 +411,15 @@ class Client:
             print(f"Error editing file: {response.split(':', 1)[1] if ':' in response else response}")
     
     def handle_edit_content(self):
-        # Show available files first
         self.handle_list()
-        
         filename = input("Enter filename to edit content: ").strip()
         if not filename:
             print("Filename cannot be empty.")
             return
-        
-        # Basic validation without removing spaces
         if not re.match(r'^[a-zA-Z0-9\s\.\-_]+$', filename):
             print("Invalid filename. Use only letters, numbers, spaces, and .-_")
             return
         
-        # Check user's privilege for this file before proceeding
         self.socket.send("LIST".encode())
         response = self.socket.recv(2048).decode()
         if not response.startswith("FILES:"):
@@ -459,16 +440,14 @@ class Client:
             print(f"You don’t have permission to edit '{filename}'. (Your privilege: {privilege})")
             return
         
-        # Proceed with download and edit only if user has edit privilege
         self.socket.send(f"DOWNLOAD:{filename}".encode())
         response = self.socket.recv(1024).decode()
-        
         if not response.startswith("FILE:"):
             print(f"Error: {response.split(':', 1)[1] if ':' in response else response}")
             return
         
         size = int(response.split(":", 1)[1])
-        if size > 10 * 1024 * 1024:  # 10MB limit
+        if size > 10 * 1024 * 1024:
             print("File is too large for editing (max 10MB).")
             self.socket.send("CANCEL_DOWNLOAD".encode())
             return
@@ -576,47 +555,34 @@ class Client:
             print(f"Error during editing: {e}")
     
     def _attempt_close_applications(self, filepath):
-        """Attempt to close any applications that might be using the file"""
-        # First, try to close apps we launched
         for pid in self.opened_processes:
             try:
                 if platform.system() == 'Windows':
-                    # On Windows, use taskkill
                     subprocess.run(['taskkill', '/F', '/PID', str(pid)], 
                                   stdout=subprocess.PIPE, 
                                   stderr=subprocess.PIPE)
                 else:
-                    # On Unix-like systems, use kill
                     os.kill(pid, signal.SIGTERM)
-                    time.sleep(0.1)  # Give a moment for process to terminate
-                    # If still running, try harder
+                    time.sleep(0.1)
                     try:
-                        os.kill(pid, 0)  # Check if process exists
+                        os.kill(pid, 0)
                         os.kill(pid, signal.SIGKILL)
                     except OSError:
-                        pass  # Process already terminated
+                        pass
             except Exception:
                 pass
-                
-        # On Windows, try to close processes using the file
         if platform.system() == 'Windows':
             try:
-                # Try using taskkill to terminate processes that have the file open
-                # This is a more aggressive approach
                 file_dir, file_name = os.path.split(filepath)
                 subprocess.run(['taskkill', '/F', '/FI', f'WINDOWTITLE eq {file_name}*'], 
                               stdout=subprocess.PIPE, 
                               stderr=subprocess.PIPE)
-                
-                # Try also terminating common editor processes
                 for editor in ["WINWORD.EXE", "EXCEL.EXE", "POWERPNT.EXE", "WORDPAD.EXE", "notepad.exe"]:
                     subprocess.run(['taskkill', '/F', '/IM', editor], 
                                   stdout=subprocess.PIPE, 
                                   stderr=subprocess.PIPE)
             except Exception:
                 pass
-                
-        # On macOS, try to use osascript to quit applications
         elif platform.system() == 'Darwin':
             try:
                 for app in ["Microsoft Word", "Microsoft Excel", "Microsoft PowerPoint", "TextEdit"]:
@@ -625,19 +591,15 @@ class Client:
                                   stderr=subprocess.PIPE)
             except Exception:
                 pass
-                
-        # On Linux, try using fuser to find and kill processes
         elif platform.system() == 'Linux':
             try:
-                # Find processes using the file
                 subprocess.run(['fuser', '-k', filepath], 
                               stdout=subprocess.PIPE, 
                               stderr=subprocess.PIPE)
             except Exception:
                 pass
-            
+    
     def _remove_temp_file(self, temp_filepath, max_retries=3, retry_delay=0.2):
-        """Helper method to remove temporary files with fast retry logic"""
         for attempt in range(max_retries):
             try:
                 os.remove(temp_filepath)
@@ -651,8 +613,6 @@ class Client:
                     time.sleep(retry_delay)
                 else:
                     print(f"\nStill cannot remove the temporary file after closing applications.")
-                    
-                    # Try more aggressive methods on Windows
                     if platform.system() == 'Windows':
                         try:
                             print("Attempting a forced delete...")
@@ -681,17 +641,14 @@ class Client:
         if choice == "1":
             self.socket.send(f"ENABLE_MFA:{self.current_user}".encode())
             response = self.socket.recv(1024).decode()
-            
             if response.startswith("MFA_ENABLED:"):
-                mfa_secret = response.split(":", 1)[1]  # Use split with maxsplit=1 to handle colons in secret
+                mfa_secret = response.split(":", 1)[1]
                 totp = TOTP(secret=mfa_secret)
                 print("\nMFA has been enabled (or updated) for your account!")
                 print("Use this new secret to set up your authenticator app:")
                 print(f"New MFA Secret: {mfa_secret}")
                 print(f"QR Code URL: {totp.provisioning_uri(self.current_user)}")
                 print("Open this URL in a QR code scanner or enter the secret manually in your app (e.g., Google Authenticator).")
-                
-                # Verify setup
                 while True:
                     verification_code = input("\nEnter the 6-digit code from your authenticator app to verify: ")
                     if not re.match(r'^\d{6}$', verification_code):
@@ -710,7 +667,6 @@ class Client:
             if confirm == 'y':
                 self.socket.send(f"DISABLE_MFA:{self.current_user}".encode())
                 response = self.socket.recv(1024).decode()
-                
                 if response == "MFA_DISABLED":
                     print("MFA has been disabled. You won’t need a code to log in.")
                 else:
@@ -725,7 +681,7 @@ class Client:
             print("Invalid choice. Please enter 1, 2, or 3.")
 
 if __name__ == "__main__":
-    SERVER_HOST = "localhost"  # Replace with your server's public IP or domain
+    SERVER_HOST = "localhost"
     SERVER_PORT = 5000
     try:
         client = Client(SERVER_HOST, SERVER_PORT)

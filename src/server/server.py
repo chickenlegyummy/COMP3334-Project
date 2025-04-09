@@ -3,12 +3,13 @@ import os
 import json
 import random
 import string
+import time
 from threading import Thread
 from .user_manager import UserManager
 from .file_controller import FileController
 from .audit_logger import AuditLogger
 from src.common.protocol import Protocol
-from src.common.totp import TOTP  # If needed directly in server.py
+from src.common.totp import TOTP
 from src.client.crypto import Crypto
 
 class Server:
@@ -20,7 +21,8 @@ class Server:
         self.logger = AuditLogger("audit.log")
         self.running = True
         self.crypto = Crypto()
-        self.mfa_sessions = {}  # To track MFA verification status
+        self.mfa_sessions = {}
+        self.auth_codes = {}
     
     def run(self):
         self.socket.listen()
@@ -60,12 +62,12 @@ class Server:
                 
                 if command == "AUTH":
                     username, password = args
-                    print(f"Authenticating {username}")
+                    print(f"Authenticating {username} with password {password}")
                     is_valid, role, has_mfa, mfa_secret = self.user_manager.verify_user(username, password)
+                    print(f"Verification result: valid={is_valid}, role={role}, has_mfa={has_mfa}")
                     
                     if is_valid:
                         if has_mfa:
-                            # Save info for the second MFA stage
                             session_id = ''.join(random.choices(string.ascii_letters + string.digits, k=16))
                             self.mfa_sessions[session_id] = {
                                 'username': username,
@@ -73,17 +75,44 @@ class Server:
                                 'mfa_secret': mfa_secret
                             }
                             client.send(f"MFA_REQUIRED:{session_id}".encode())
-                            print(f"MFA required for {username}")
+                            print(f"MFA required for {username}, session_id={session_id}")
                         else:
+                            auth_code = ''.join(random.choices(string.digits, k=6))
+                            self.auth_codes[username] = {
+                                'code': auth_code,
+                                'role': role,
+                                'expires': time.time() + 300
+                            }
+                            client.send(f"AUTH_CODE:{auth_code}".encode())
+                            print(f"Sent AUTH_CODE:{auth_code} for {username}")
+                    else:
+                        client.send("AUTH_FAILED".encode())
+                        print(f"Auth failed for {username} - invalid credentials")
+                
+                elif command == "VERIFY_AUTH_CODE":
+                    username, code = args
+                    print(f"Verifying auth code for {username}: {code}")
+                    if username in self.auth_codes:
+                        session = self.auth_codes[username]
+                        print(f"Stored session: {session}")
+                        if time.time() > session['expires']:
+                            del self.auth_codes[username]
+                            client.send("AUTH_FAILED:Code expired".encode())
+                            print(f"Auth code expired for {username}")
+                        elif session['code'] == code:
                             current_user = username
-                            current_role = role
+                            current_role = session['role']
+                            del self.auth_codes[username]
                             client.send("AUTH_SUCCESS".encode())
                             self.logger.log_action(username, "login")
                             self.user_manager.log_audit(username, "login", addr[0])
-                            print(f"Auth success for {username} ({role})")
+                            print(f"Auth code verified for {username}")
+                        else:
+                            client.send("AUTH_FAILED:Invalid code".encode())
+                            print(f"Invalid auth code for {username}: expected {session['code']}, got {code}")
                     else:
-                        client.send("AUTH_FAILED".encode())
-                        print(f"Auth failed for {username}")
+                        client.send("AUTH_FAILED:Invalid session".encode())
+                        print(f"No auth code session for {username}")
                 
                 elif command == "MFA_VERIFY":
                     session_id, code = args
@@ -97,7 +126,6 @@ class Server:
                             self.logger.log_action(username, "login with MFA")
                             self.user_manager.log_audit(username, "login with MFA", addr[0])
                             print(f"MFA verification success for {username}")
-                            # Clean up session
                             del self.mfa_sessions[session_id]
                         else:
                             client.send("MFA_FAILED".encode())
@@ -109,14 +137,9 @@ class Server:
                     if len(args) < 3:
                         client.send("ERROR:Missing required fields".encode())
                         continue
-                        
                     username, password, email = args[:3]
                     mfa_secret = args[3] if len(args) > 3 else None
-                    
-                    success, message = self.user_manager.register_user(
-                        username, password, email, "normal", mfa_secret
-                    )
-                    
+                    success, message = self.user_manager.register_user(username, password, email, "normal", mfa_secret)
                     if success:
                         client.send("REGISTER_SUCCESS".encode())
                         print(f"User {username} registered successfully")
@@ -128,13 +151,9 @@ class Server:
                     if len(args) != 2:
                         client.send("ERROR:Invalid arguments".encode())
                         continue
-                        
                     username, email = args
                     success, token_or_message = self.user_manager.create_reset_token(username, email)
-                    
                     if success:
-                        # In a real system, you would send this token via email
-                        # For demo purposes, we're sending it back directly
                         verification_code = ''.join(random.choices(string.digits, k=6))
                         print(f"Reset code for {username}: {verification_code}")
                         client.send(f"RESET_CODE:{verification_code}".encode())
@@ -145,10 +164,12 @@ class Server:
                     if len(args) != 2:
                         client.send("ERROR:Invalid arguments".encode())
                         continue
-                        
                     username, new_password = args
+                    password_valid, _ = self.user_manager.verify_current_password(username, new_password)
+                    if password_valid:
+                        client.send("RESET_FAILED:New password cannot be the same as the old password".encode())
+                        continue
                     success, message = self.user_manager.update_password(username, new_password)
-                    
                     if success:
                         client.send("PASSWORD_UPDATED".encode())
                         self.user_manager.log_audit(username, "password reset", addr[0])
@@ -159,28 +180,23 @@ class Server:
                     if not current_user:
                         client.send("ERROR:Not authenticated".encode())
                         continue
-                        
                     if len(args) != 3:
                         client.send("ERROR:Invalid arguments".encode())
                         continue
-                        
                     username, current_password, new_password = args
-                    
-                    # Verify this is the logged-in user
                     if username != current_user:
                         client.send("ERROR:Permission denied".encode())
                         continue
-                    
-                    # Verify current password
                     password_valid, _ = self.user_manager.verify_current_password(username, current_password)
-                    
                     if not password_valid:
                         client.send("ERROR:Current password is incorrect".encode())
                         continue
-                    
-                    # Update password
+                    # Check if new password matches current password
+                    new_password_same, _ = self.user_manager.verify_current_password(username, new_password)
+                    if new_password_same:
+                        client.send("ERROR:New password cannot be the same as the current password".encode())
+                        continue
                     success, message = self.user_manager.update_password(username, new_password)
-                    
                     if success:
                         client.send("PASSWORD_UPDATED".encode())
                         self.user_manager.log_audit(username, "password changed", addr[0])
@@ -201,9 +217,7 @@ class Server:
                     if not current_user:
                         client.send("ERROR:Not authenticated".encode())
                         continue
-                    
                     success, mfa_secret = self.user_manager.enable_mfa(current_user)
-                    
                     if success:
                         client.send(f"MFA_ENABLED:{mfa_secret}".encode())
                         self.user_manager.log_audit(current_user, "enabled MFA", addr[0])
@@ -214,9 +228,7 @@ class Server:
                     if not current_user:
                         client.send("ERROR:Not authenticated".encode())
                         continue
-                    
                     success, message = self.user_manager.disable_mfa(current_user)
-                    
                     if success:
                         client.send("MFA_DISABLED".encode())
                         self.user_manager.log_audit(current_user, "disabled MFA", addr[0])
@@ -226,7 +238,6 @@ class Server:
                 elif not current_user:
                     client.send("ERROR:Not authenticated".encode())
                 
-                # File operations
                 elif command == "UPLOAD":
                     self.handle_upload(client, args, addr, current_user, current_role)
                 elif command == "DOWNLOAD":
@@ -249,7 +260,6 @@ class Server:
             except UnicodeDecodeError as e:
                 print(f"Decode error from {addr}: {e}")
                 client.send(f"ERROR:Server error: {e}".encode())
-                # Reset buffer to avoid sending garbage
                 client.send(b"")
             except Exception as e:
                 print(f"Error handling client {addr}: {e}")
@@ -305,46 +315,34 @@ class Server:
         if current_role == "guest":
             client.send("ERROR:Guests cannot update files".encode())
             return
-        
         try:
             filename, size, key, visibility = args
             size = int(size)
-            
-            # Check permissions
             metadata = self.file_controller.get_metadata(filename)
             if not metadata:
                 client.send("ERROR:File not found".encode())
                 return
-                
             if current_role != "admin" and metadata["owner"] != current_user:
                 client.send("ERROR:Permission denied".encode())
                 return
-            
-            # Receive updated file data
             data = b""
             while len(data) < size:
                 chunk = client.recv(min(size - len(data), 4096))
                 if not chunk:
                     raise Exception("Client disconnected during upload")
                 data += chunk
-            
-            # Store the updated file
             self.file_controller.store_file(filename, data)
             self.file_controller.store_key(filename, key)
-            
             if visibility and visibility != metadata["visibility"]:
                 self.file_controller.edit_privilege(filename, visibility)
-                
             self.logger.log_action(addr[0], f"updated {filename}")
             self.user_manager.log_audit(current_user, f"updated file {filename}", addr[0])
             client.send("UPDATE_SUCCESS".encode())
-            
         except ValueError as e:
             client.send(f"ERROR:Invalid size: {e}".encode())
         except Exception as e:
             client.send(f"ERROR:Update failed: {str(e)}".encode())
-            # Ensure no leftover data corrupts the stream
-            client.send(b"")  # Reset buffer
+            client.send(b"")
     
     def handle_list(self, client, addr, current_user, current_role):
         if current_role == "guest":
@@ -394,18 +392,14 @@ class Server:
             visibility = args[1] if len(args) > 1 and args[1] else None
             add_users_raw = args[2] if len(args) > 2 and args[2] else None
             remove_users_raw = args[3] if len(args) > 3 and args[3] else None
-            
-            # Strip whitespace from add_users and remove_users
             add_users = [u.strip() for u in add_users_raw.split(",") if u.strip()] if add_users_raw else None
             remove_users = [u.strip() for u in remove_users_raw.split(",") if u.strip()] if remove_users_raw else None
-            
             if visibility and visibility not in ["private", "public", "unlisted"]:
                 client.send("ERROR:Invalid visibility (private/public/unlisted)".encode())
                 return
             if not visibility and not add_users and not remove_users:
                 client.send("ERROR:No changes specified".encode())
                 return
-            
             if self.file_controller.edit_privilege(filename, visibility, None, add_users, remove_users):
                 self.logger.log_action(addr[0], f"edited {filename} privileges")
                 self.user_manager.log_audit(current_user, f"edited file {filename} privileges", addr[0])
@@ -433,16 +427,12 @@ class Server:
     def handle_get_metadata(self, client, args, addr, current_user, current_role):
         filename = args[0]
         metadata = self.file_controller.get_metadata(filename)
-        
         if not metadata:
             client.send("ERROR:File not found".encode())
             return
-            
         if not self.can_access_file(metadata, current_user, current_role):
             client.send("ERROR:Permission denied".encode())
             return
-            
-        # Send just the visibility parameter for now
         client.send(f"METADATA:{metadata['visibility']}".encode())
     
     def can_access_file(self, metadata, current_user, current_role):

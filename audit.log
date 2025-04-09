@@ -446,3 +446,17 @@
 2025-04-08 16:04:25,009 - User: test3, Action: login
 2025-04-08 16:04:30,357 - User: 127.0.0.1, Action: listed files
 2025-04-08 16:04:38,249 - User: test3, Action: logout
+2025-04-09 14:56:13,061 - User: test3, Action: login
+2025-04-09 14:56:21,367 - User: test3, Action: login
+2025-04-09 14:56:38,334 - User: test, Action: login
+2025-04-09 14:58:37,098 - User: test3, Action: login
+2025-04-09 15:06:46,735 - User: test3, Action: login
+2025-04-09 15:07:52,534 - User: test4, Action: login
+2025-04-09 15:08:16,272 - User: 127.0.0.1, Action: listed files
+2025-04-09 15:08:18,720 - User: 127.0.0.1, Action: listed files
+2025-04-09 15:14:46,430 - User: test4, Action: login
+2025-04-09 15:14:49,543 - User: 127.0.0.1, Action: listed files
+2025-04-09 15:16:47,120 - User: test4, Action: logout
+2025-04-09 15:19:04,280 - User: test4, Action: login with MFA
+2025-04-09 15:19:22,848 - User: test4, Action: logout
+2025-04-09 15:19:42,780 - User: test4, Action: login
