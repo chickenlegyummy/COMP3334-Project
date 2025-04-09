@@ -313,7 +313,59 @@ class Client:
             if visibility in ["private", "public", "unlisted"]:
                 break
             print("Invalid visibility. Use: private, public, or unlisted.")
-        self.file_manager.upload_file(filepath, self.crypto, visibility)
+        
+        try:
+            filename = os.path.basename(filepath)
+            with open(filepath, "rb") as f:
+                data = f.read()
+            encrypted_data, key = self.crypto.encrypt(data)
+            cmd = f"UPLOAD:{filename}:{len(encrypted_data)}:{key.decode()}:{visibility}"
+            
+            # Send the command first without data
+            self.socket.send(cmd.encode())
+            response = self.socket.recv(1024).decode()
+            
+            if response.startswith("CONFIRM_OVERWRITE:"):
+                prompt = response.split(":", 1)[1]
+                print(prompt)
+                while True:
+                    choice = input("Enter 'yes' or 'no': ").lower().strip()
+                    if choice in ["yes", "no"]:
+                        break
+                    print("Please enter 'yes' or 'no'.")
+                self.socket.send(f"CONFIRM:{choice}".encode())
+                
+                if choice == "yes":
+                    # Send encrypted data only if confirmed
+                    self.socket.send(encrypted_data)
+                    final_response = self.socket.recv(1024).decode()
+                else:
+                    # Handle cancellation and exit
+                    final_response = self.socket.recv(1024).decode()
+                    if final_response.startswith("UPLOAD_CANCELLED:"):
+                        print(final_response.split(":", 1)[1])
+                    elif final_response.startswith("ERROR:"):
+                        print(f"Server error during cancellation: {final_response.split(':', 1)[1]}")
+                    else:
+                        print(f"Unexpected response during cancellation: {final_response}")
+                    return
+            else:
+                # New file case: send data and get final response
+                self.socket.send(encrypted_data)
+                final_response = response
+            
+            if final_response == "UPLOAD_SUCCESS":
+                print(f"File '{filename}' uploaded successfully!")
+            else:
+                print(f"Error uploading file: {final_response.split(':', 1)[1] if ':' in final_response else final_response}")
+        except FileNotFoundError:
+            print("Error: File not found.")
+        except UnicodeDecodeError as e:
+            print(f"Upload error: Decoding issue - {e}")
+        except ValueError as e:
+            print(f"Upload error: Invalid data - {e}")
+        except Exception as e:
+            print(f"Upload error: {e}")
     
     def handle_download(self):
         self.handle_list()
