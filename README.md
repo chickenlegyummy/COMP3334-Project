@@ -1,4 +1,4 @@
-# Quick Start Guide – Secure File Sharing System
+# Quick Start Guide – Secure File Storage System
 ## Team 06
 ## Authors:
 LI Kwan To
