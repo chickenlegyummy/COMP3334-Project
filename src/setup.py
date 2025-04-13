@@ -7,6 +7,6 @@ setup(
     install_requires=[
         "cryptography>=3.4",
     ],
-    author="Team 06",
+    author="LI Kwan To, LI Chun Fung, HO Cheuk Ting, WAN Ka Ho",
     description="COMP3334 Project"
 )
