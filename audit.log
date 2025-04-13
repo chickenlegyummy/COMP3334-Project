@@ -460,3 +460,126 @@
 2025-04-09 15:19:04,280 - User: test4, Action: login with MFA
 2025-04-09 15:19:22,848 - User: test4, Action: logout
 2025-04-09 15:19:42,780 - User: test4, Action: login
+2025-04-13 03:46:09,285 - User: admin, Action: login
+2025-04-13 03:46:11,725 - User: 127.0.0.1, Action: listed files
+2025-04-13 03:46:18,013 - User: 127.0.0.1, Action: listed files
+2025-04-13 03:46:19,783 - User: 127.0.0.1, Action: deleted test.txt
+2025-04-13 03:46:22,477 - User: 127.0.0.1, Action: listed files
+2025-04-13 03:46:26,243 - User: admin, Action: logout
+2025-04-13 03:53:19,928 - User: david, Action: login with MFA
+2025-04-13 03:56:23,861 - User: 127.0.0.1, Action: uploaded test.txt (public)
+2025-04-13 03:57:17,886 - User: 127.0.0.1, Action: listed files
+2025-04-13 03:57:32,402 - User: 127.0.0.1, Action: downloaded test.txt
+2025-04-13 03:58:33,870 - User: 127.0.0.1, Action: listed files
+2025-04-13 03:59:49,966 - User: 127.0.0.1, Action: listed files
+2025-04-13 04:00:29,296 - User: 127.0.0.1, Action: listed files
+2025-04-13 04:00:41,391 - User: 127.0.0.1, Action: listed files
+2025-04-13 04:00:57,712 - User: 127.0.0.1, Action: listed files
+2025-04-13 04:01:00,127 - User: 127.0.0.1, Action: listed files
+2025-04-13 04:02:04,080 - User: 127.0.0.1, Action: listed files
+2025-04-13 04:02:07,681 - User: 127.0.0.1, Action: deleted test.txt
+2025-04-13 04:02:20,483 - User: david, Action: logout
+2025-04-13 04:03:50,409 - User: david, Action: login with MFA
+2025-04-13 04:04:40,988 - User: 127.0.0.1, Action: uploaded test.txt (public)
+2025-04-13 04:05:17,458 - User: 127.0.0.1, Action: listed files
+2025-04-13 04:05:20,828 - User: 127.0.0.1, Action: downloaded test.txt
+2025-04-13 04:06:28,552 - User: 127.0.0.1, Action: listed files
+2025-04-13 04:06:59,777 - User: 127.0.0.1, Action: listed files
+2025-04-13 04:07:10,552 - User: 127.0.0.1, Action: listed files
+2025-04-13 04:07:21,168 - User: 127.0.0.1, Action: listed files
+2025-04-13 04:07:24,472 - User: 127.0.0.1, Action: listed files
+2025-04-13 04:08:23,022 - User: david, Action: logout
+2025-04-13 04:09:13,259 - User: david, Action: login with MFA
+2025-04-13 04:10:28,831 - User: david, Action: logout
+2025-04-13 04:11:28,571 - User: david, Action: login with MFA
+2025-04-13 04:11:55,243 - User: 127.0.0.1, Action: uploaded test.txt (public)
+2025-04-13 04:12:08,973 - User: david, Action: logout
+2025-04-13 04:12:49,315 - User: david, Action: login with MFA
+2025-04-13 04:13:15,763 - User: 127.0.0.1, Action: listed files
+2025-04-13 04:13:18,884 - User: 127.0.0.1, Action: deleted test.txt
+2025-04-13 04:13:43,691 - User: 127.0.0.1, Action: uploaded test.txt (public)
+2025-04-13 04:15:19,459 - User: 127.0.0.1, Action: listed files
+2025-04-13 04:15:25,538 - User: 127.0.0.1, Action: listed files
+2025-04-13 04:15:30,985 - User: 127.0.0.1, Action: listed files
+2025-04-13 04:15:38,801 - User: 127.0.0.1, Action: listed files
+2025-04-13 04:15:43,841 - User: 127.0.0.1, Action: listed files
+2025-04-13 04:16:21,478 - User: david, Action: logout
+2025-04-13 04:17:09,202 - User: admin, Action: login
+2025-04-13 04:17:11,762 - User: 127.0.0.1, Action: listed files
+2025-04-13 04:17:14,331 - User: 127.0.0.1, Action: deleted test.txt
+2025-04-13 04:17:16,695 - User: admin, Action: logout
+2025-04-13 04:18:06,451 - User: david, Action: login with MFA
+2025-04-13 04:18:45,268 - User: 127.0.0.1, Action: uploaded test.txt (public)
+2025-04-13 04:19:14,539 - User: 127.0.0.1, Action: listed files
+2025-04-13 04:19:17,630 - User: 127.0.0.1, Action: downloaded test.txt
+2025-04-13 04:20:09,009 - User: 127.0.0.1, Action: listed files
+2025-04-13 04:20:56,945 - User: 127.0.0.1, Action: listed files
+2025-04-13 04:21:00,171 - User: 127.0.0.1, Action: deleted test.txt
+2025-04-13 04:21:07,918 - User: david, Action: logout
+2025-04-13 04:21:31,387 - User: david, Action: login with MFA
+2025-04-13 04:22:22,478 - User: 127.0.0.1, Action: uploaded test.txt (public)
+2025-04-13 04:22:43,299 - User: 127.0.0.1, Action: listed files
+2025-04-13 04:22:47,974 - User: 127.0.0.1, Action: downloaded test.txt
+2025-04-13 04:23:25,435 - User: 127.0.0.1, Action: listed files
+2025-04-13 04:23:35,634 - User: 127.0.0.1, Action: listed files
+2025-04-13 04:23:55,370 - User: 127.0.0.1, Action: listed files
+2025-04-13 04:24:00,562 - User: 127.0.0.1, Action: listed files
+2025-04-13 04:24:20,527 - User: david, Action: logout
+2025-04-13 04:24:42,548 - User: david, Action: login with MFA
+2025-04-13 04:26:21,423 - User: david, Action: logout
+2025-04-13 04:27:32,300 - User: david, Action: login with MFA
+2025-04-13 04:27:43,587 - User: 127.0.0.1, Action: listed files
+2025-04-13 04:27:45,212 - User: 127.0.0.1, Action: deleted test.txt
+2025-04-13 04:28:23,070 - User: 127.0.0.1, Action: uploaded test.txt (public)
+2025-04-13 04:28:57,571 - User: 127.0.0.1, Action: listed files
+2025-04-13 04:28:59,638 - User: 127.0.0.1, Action: downloaded test.txt
+2025-04-13 04:30:10,962 - User: 127.0.0.1, Action: listed files
+2025-04-13 04:30:29,018 - User: 127.0.0.1, Action: listed files
+2025-04-13 04:30:41,322 - User: 127.0.0.1, Action: listed files
+2025-04-13 04:30:47,194 - User: 127.0.0.1, Action: listed files
+2025-04-13 04:31:28,704 - User: david, Action: logout
+2025-04-13 04:31:37,594 - User: david, Action: login with MFA
+2025-04-13 04:32:49,528 - User: david, Action: logout
+2025-04-13 16:04:58,666 - User: guest, Action: login
+2025-04-13 16:05:27,335 - User: guest, Action: logout
+2025-04-13 16:19:19,786 - User: guest, Action: login
+2025-04-13 16:19:21,866 - User: 127.0.0.1, Action: listed files
+2025-04-13 16:19:26,218 - User: 127.0.0.1, Action: listed files
+2025-04-13 16:19:29,971 - User: 127.0.0.1, Action: downloaded test.txt
+2025-04-13 16:20:47,779 - User: 127.0.0.1, Action: listed files
+2025-04-13 16:20:52,915 - User: 127.0.0.1, Action: listed files
+2025-04-13 16:21:07,386 - User: 127.0.0.1, Action: listed files
+2025-04-13 16:22:53,994 - User: guest, Action: login
+2025-04-13 16:23:17,747 - User: 127.0.0.1, Action: listed files
+2025-04-13 16:23:20,539 - User: 127.0.0.1, Action: listed files
+2025-04-13 16:23:26,171 - User: 127.0.0.1, Action: listed files
+2025-04-13 16:23:27,891 - User: 127.0.0.1, Action: downloaded test.txt
+2025-04-13 16:23:37,594 - User: 127.0.0.1, Action: listed files
+2025-04-13 16:23:43,427 - User: 127.0.0.1, Action: listed files
+2025-04-13 16:23:44,641 - User: 127.0.0.1, Action: listed files
+2025-04-13 16:23:45,170 - User: 127.0.0.1, Action: listed files
+2025-04-13 16:23:45,498 - User: 127.0.0.1, Action: listed files
+2025-04-13 16:23:45,803 - User: 127.0.0.1, Action: listed files
+2025-04-13 16:23:46,058 - User: 127.0.0.1, Action: listed files
+2025-04-13 16:23:47,410 - User: 127.0.0.1, Action: listed files
+2025-04-13 16:23:50,267 - User: 127.0.0.1, Action: downloaded test.txt
+2025-04-13 16:24:49,447 - User: guest, Action: logout
+2025-04-13 16:47:32,061 - User: guest, Action: login
+2025-04-13 16:47:32,853 - User: 127.0.0.1, Action: listed files
+2025-04-13 16:47:35,973 - User: 127.0.0.1, Action: listed files
+2025-04-13 16:47:39,806 - User: 127.0.0.1, Action: downloaded test.txt
+2025-04-13 16:47:45,413 - User: 127.0.0.1, Action: listed files
+2025-04-13 16:47:49,117 - User: 127.0.0.1, Action: listed files
+2025-04-13 16:47:51,102 - User: 127.0.0.1, Action: listed files
+2025-04-13 16:47:53,950 - User: 127.0.0.1, Action: listed files
+2025-04-13 16:47:59,645 - User: 127.0.0.1, Action: listed files
+2025-04-13 16:48:22,529 - User: guest, Action: logout
+2025-04-13 16:50:37,225 - User: david, Action: login with MFA
+2025-04-13 16:50:44,283 - User: 127.0.0.1, Action: uploaded test.txt (public)
+2025-04-13 16:50:48,022 - User: 127.0.0.1, Action: listed files
+2025-04-13 16:50:54,405 - User: 127.0.0.1, Action: listed files
+2025-04-13 16:50:57,661 - User: 127.0.0.1, Action: listed files
+2025-04-13 16:51:03,662 - User: 127.0.0.1, Action: listed files
+2025-04-13 16:51:10,958 - User: 127.0.0.1, Action: listed files
+2025-04-13 16:51:14,430 - User: 127.0.0.1, Action: listed files
+2025-04-13 16:51:22,690 - User: david, Action: logout

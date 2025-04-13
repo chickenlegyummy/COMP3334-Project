@@ -345,9 +345,9 @@ class Server:
             client.send(b"")
     
     def handle_list(self, client, addr, current_user, current_role):
-        if current_role == "guest":
-            client.send("ERROR:Guests cannot list files".encode())
-            return
+        # if current_role == "guest":
+        #     client.send("ERROR:Guests cannot list files".encode())
+        #     return
         files = self.file_controller.list_files(current_user, current_role)
         if files:
             file_list = "\n".join([f"{f['filename']} (Owner: {f['owner']}, Your Privilege: {f['privilege']})" for f in files])
@@ -441,7 +441,7 @@ class Server:
         if metadata["owner"] == current_user:
             return True
         if metadata["visibility"] == "public":
-            return current_role == "normal"
+            return True
         if metadata["visibility"] == "unlisted" and current_user in metadata["allowed_users"]:
             return current_role == "normal"
         return False

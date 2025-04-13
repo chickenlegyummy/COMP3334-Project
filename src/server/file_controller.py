@@ -118,7 +118,7 @@ class FileController:
             return "edit"  # Admin can view/edit/delete all files
         if metadata["owner"] == username:
             return "edit"  # Owner can view/edit/delete their files
-        if metadata["visibility"] == "public" and role == "normal":
+        if metadata["visibility"] == "public":
             return "view"  # Normal users can view public files
         if metadata["visibility"] == "unlisted" and username in metadata["allowed_users"] and role == "normal":
             return "view"  # Normal users can view unlisted files if allowed
