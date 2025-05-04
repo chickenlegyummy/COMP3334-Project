@@ -1,10 +1,7 @@
 # Quick Start Guide – Secure File Storage System
 ## Team 06
 ## Authors:
-LI Kwan To
-LI Chun Fung
-HO Cheuk Ting
-WAN Ka Ho
+LI Kwan To with Carrot 🥕
 
 This guide helps you quickly set up and run the secure file sharing system.
 
